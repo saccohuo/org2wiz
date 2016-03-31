@@ -12,8 +12,9 @@ org 文档标题必须以 ~.org~ 结尾。插入附件，后缀为 ~.org~ ，然
 
 #+BEGIN_QUOTE
 新版org-mode的内置函数改了，所以插件的第30行应改为
-
+#+BEGIN_SRC
 strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-html-export-to-html";
+#+END_SRC
 本人已验证。
 #+END_QUOTE
 * 参考
