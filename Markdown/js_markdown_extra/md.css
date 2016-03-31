@@ -1,0 +1,21 @@
+blockquote {
+    background-color: #F0F0F0;
+    border-left: 5px solid #7D7D7D;
+    margin-left: 0px;
+}
+blockquote p{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-left: 40px;
+}
+table {
+	border: 0px;
+}
+th, td {
+	border: 1px solid;
+	padding-left:10px;
+	padding-right:10px;
+}
+th {
+	background-color: #f0f0f0;
+}
