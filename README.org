@@ -2,13 +2,15 @@
 #+OPTIONS: ^:{}
 
 * 插件介绍
-为知笔记的一款插件，使为知支持org mode。
+为知笔记的一款插件，使为知支持 org-mode。
+* 插件安装
+打包下载 repo 的 zip 压缩包，然后将 ~.zip~ 后缀改为 ~.wizplugin~ ，双击安装即可。
 * 插件使用
 org 文档标题必须以 ~.org~ 结尾。插入附件，后缀为 ~.org~ ，然后在为知笔记界面点击 ~org2wiz~ 。
 
 感谢原作者 @myflocky。
 * 原插件问题
-安装Org-Mode之后，按照应用描述进行操作会没有一点效果，操作之后还是一片空白。在这里需要对 ~Org-Mode插件~ 文件夹（ ~D:\MyDocuments\My Knowledge\Plugins\{a1f84253-8cba-4753-82c9-6654642c3c8c}~ ）下的 ~Org-Mode.js~ 文件作修改，修改方法见以上引用信息。其中 ~D:\MyDocuments~ 为我在本机安装数据文件夹的路径，请自行替换为自己电脑上为知笔记的数据文件夹路径。
+安装原版 ~Org-Mode插件~ 之后，按照应用描述进行操作会没有一点效果，操作之后还是一片空白。在这里需要对 ~Org-Mode插件~ 文件夹（ ~D:\MyDocuments\My Knowledge\Plugins\{a1f84253-8cba-4753-82c9-6654642c3c8c}~ ）下的 ~Org-Mode.js~ 文件作修改，修改方法见以上引用信息。其中 ~D:\MyDocuments~ 为我在本机安装数据文件夹的路径，请自行替换为自己电脑上为知笔记的数据文件夹路径。
 
 #+BEGIN_QUOTE
 新版org-mode的内置函数改了，所以插件的第30行应改为
