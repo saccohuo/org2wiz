@@ -8,9 +8,9 @@
 * 插件使用
 org 文档标题必须以 ~.org~ 结尾。插入附件，后缀为 ~.org~ ，然后在为知笔记界面点击 ~org2wiz~ 。
 
-感谢原作者 @myflocky。
+感谢原作者 [[http://bbs.wiz.cn/space-uid-5130.html][@myflocky]]。
 * 原插件问题
-安装原版 ~Org-Mode插件~ 之后，按照应用描述进行操作会没有一点效果，操作之后还是一片空白。好心人在 [[http://bbs.wiz.cn/forum.php?mod=redirect&goto=findpost&ptid=17135&pid=109573][帖子回复]] 中指出在这里需要对 ~Org-Mode插件~ 文件夹（ ~D:\MyDocuments\My Knowledge\Plugins\{a1f84253-8cba-4753-82c9-6654642c3c8c}~ ）下的 ~Org-Mode.js~ 文件作修改，修改方法见以上引用信息。其中 ~D:\MyDocuments~ 为我在本机安装数据文件夹的路径，请自行替换为自己电脑上为知笔记的数据文件夹路径。
+安装原版 ~Org-Mode插件~ 之后，按照应用描述进行操作会没有一点效果，操作之后还是一片空白。好心人 [[http://bbs.wiz.cn/space-uid-26363.html][@yangguang760]] 在 [[http://bbs.wiz.cn/forum.php?mod=redirect&goto=findpost&ptid=17135&pid=109573][帖子回复]] 中指出在这里需要对 ~Org-Mode插件~ 文件夹（ ~D:\MyDocuments\My Knowledge\Plugins\{a1f84253-8cba-4753-82c9-6654642c3c8c}~ ）下的 ~Org-Mode.js~ 文件作修改，修改方法见以上引用信息。其中 ~D:\MyDocuments~ 为我在本机安装数据文件夹的路径，请自行替换为自己电脑上为知笔记的数据文件夹路径。
 
 #+BEGIN_QUOTE
 新版org-mode的内置函数改了，所以插件的第30行应改为
@@ -19,6 +19,8 @@ strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-htm
 #+END_SRC
 本人已验证。
 #+END_QUOTE
+
+感谢好心人 [[http://bbs.wiz.cn/space-uid-26363.html][@yangguang760]] 给出了解决方案。
 * 参考
 + [[http://app.wiz.cn/index.html?id=181][org-mode插件 - 为知笔记应用中心]]
 + [[http://bbs.wiz.cn/thread-17135-1-3.html][Emacs Org-Mode 插件 - 为知笔记 (Wiz)Windows 客户端帮助区 - 为知笔记 (WizNote) 帮助中心 - Powered by Discuz!]]
