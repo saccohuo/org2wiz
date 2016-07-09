@@ -22,6 +22,7 @@ strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-htm
 
 感谢好心人 [[http://bbs.wiz.cn/space-uid-26363.html][@yangguang760]] 给出了解决方案。
 * 想法
+下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
 ** TODO 从 org 导出的 html 也支持 MathJax(本地/远程)
 类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。
 ** TODO 自动识别附件中需要导出的那个 org 文件
