@@ -24,11 +24,17 @@ strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-htm
 * 想法
 下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
 ** TODO 从 org 导出的 html 也支持 MathJax(本地/远程)
-类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。
+类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。可以选择调用本地的 MathJax 还是远程的 MathJax。
 ** TODO 自动识别附件中需要导出的那个 org 文件
-** TODO 自动把当前文件夹同名的 pdf 和 tex 文件加入到附件中
+附件中有时候不会只放置所需的 org 文件，有时候会加入一些其他附件，这个时候附件的自动排序会导致插件的导入 org 功能失效。此时必须手动修改 org 文件名，很不方便，也不智能。
+
+我的想法是：如果附件中只有一个 org 文件，就让该插件自动识别已添加的附件，并找出所需的 org 文件，然后进行 Org2Wiz 操作；如果有多个 org 文件会让使用者选择需要导出的 org 文件，否则就导出默认的那个文件（该功能还需要进行更周全的考虑）。
 ** TODO Org2Wiz 支持利用为知的导入 pdf 功能实现把 org 通过 tex 导出的 pdf 文件导入当前笔记中
-功能构思：org 常用的导出格式为 html 和 pdf(经过 LaTeX)，而 pdf 格式对公式的支持比 MathJax 好。因此想要实现可以选择导出 html 还是导出 pdf 到该笔记中。为知支持 pdf 导入，但是好像知道只可以导入到新笔记中。
+功能构思：org 常用的导出格式为 html 和 pdf(经过 LaTeX)，而 pdf 格式对公式的支持比 MathJax 好。因此想要实现可以选择导出 html 还是导出 pdf 到该笔记中。为知支持 pdf 导入，但是好像知道只可以导入到新笔记中，需要更仔细的调研。
+
+这个功能还涉及到 org 中针对 html 和 pdf 导出的相关设置，暂时不重点考虑，假设导出时这部分设置已经完善
+** TODO 自动把当前文件夹同名的 pdf 和 tex 文件加入到附件中
+如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
 * 参考
 + [[http://app.wiz.cn/index.html?id=181][org-mode插件 - 为知笔记应用中心]]
 + [[http://bbs.wiz.cn/thread-17135-1-3.html][Emacs Org-Mode 插件 - 为知笔记 (Wiz)Windows 客户端帮助区 - 为知笔记 (WizNote) 帮助中心 - Powered by Discuz!]]
