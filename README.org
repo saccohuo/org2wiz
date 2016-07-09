@@ -24,7 +24,7 @@ strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-htm
 * 想法
 下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
 ** TODO 从 org 导出的 html 也支持 MathJax(本地/远程)
-类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。可以选择调用本地的 MathJax 还是远程的 MathJax。
++类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。+ 本身已经支持本地 MathJax 解析功能。可以选择调用本地的 MathJax 还是远程的 MathJax。
 ** TODO 自动识别附件中需要导出的那个 org 文件
 附件中有时候不会只放置所需的 org 文件，有时候会加入一些其他附件，这个时候附件的自动排序会导致插件的导入 org 功能失效。此时必须手动修改 org 文件名，很不方便，也不智能。
 
