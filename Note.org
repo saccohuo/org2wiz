@@ -1,0 +1,68 @@
+#+TITLE: org2wiz 修改笔记
+#+OPTIONS: ^:{}
+#+OPTIONS: html-postamble:nil
+
+#+INFOJS_OPT: view:t toc:t ltoc:t mouse:underline buttons:0 path:http://thomasf.github.io/solarized-css/org-info.min.js
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://thomasf.github.io/solarized-css/solarized-light.min.css" />
+
+* 想法
+下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
+** TODO 从 org 导出的 html 也支持 MathJax(本地/远程)
+类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。插件介绍说本身已经支持本地 MathJax 解析功能，但是我按照介绍的方法生成的 html 没有被渲染。可以选择调用本地的 MathJax 还是远程的 MathJax。
+** TODO 自动识别附件中需要导出的那个 org 文件
+附件中有时候不会只放置所需的 org 文件，有时候会加入一些其他附件，这个时候附件的自动排序会导致插件的导入 org 功能失效。此时必须手动修改 org 文件名，很不方便，也不智能。
+
+我的想法是：如果附件中只有一个 org 文件，就让该插件自动识别已添加的附件，并找出所需的 org 文件，然后进行 Org2Wiz 操作；如果有多个 org 文件会让使用者选择需要导出的 org 文件，否则就导出默认的那个文件（该功能还需要进行更周全的考虑）。
+** TODO Org2Wiz 支持利用为知的导入 pdf 功能实现把 org 通过 tex 导出的 pdf 文件导入当前笔记中
+功能构思：org 常用的导出格式为 html 和 pdf(经过 LaTeX)，而 pdf 格式对公式的支持比 MathJax 好。因此想要实现可以选择导出 html 还是导出 pdf 到该笔记中。为知支持 pdf 导入，但是好像知道只可以导入到新笔记中，需要更仔细的调研。
+
+这个功能还涉及到 org 中针对 html 和 pdf 导出的相关设置，暂时不重点考虑，假设导出时这部分设置已经完善
+** TODO 自动把当前文件夹同名的 pdf 和 tex 文件加入到附件中
+如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
+
+* 为知笔记插件开发学习
+** 基本问题
+- 可以使用 Chrome 开发工具来调试了。
+- 对于全局插件的调试，可以启用 Wiz 的 debug 模式。
+- 对于 Type，除了 HtmlDialog 类型外，其他的类型，都必须指定 ScriptFileName，来指定脚本文件（必须是 js 文件）。
+- Plugin_x，则代表某一个插件的描述部分，x 从 0 开始，到插件数量 - 1。如果有多个插件功能，每一个插件功能有一个独立的 Plugin_x section，例如 [Plugin_0], [Plugin_1] 等等
+- MenuType：插件菜单的类型，这个菜单应该先是在哪一个菜单里面。
+- 我们增加了 [Strings] 部分，并且对 html 对话框里面的资源进行了本地化。
+- Html 对话框里面，所有的语言，我们都用了英文，这样在没有进行本地化支持的时候，全部显示成英文。
+  首先，我们给 HelloWorld 外边增加了一个 span，并且给了他一个 id
+** 全局插件
+- 为知笔记提供了一种在程序运行期间，一直可以运行并且响应 Wiz 消息的一种插件。例如在 wiz 运行期间，设定一个定时器，每隔半个小时就可以提醒用户休息眼睛。
+- 就像一个网页，里面内置了很多脚本，在网页打开的状态下，这些脚本一直都是可以运行的。
+- 而对于直接执行脚本的插件 (ExecuteScript) 或者 html 对话框插件 (HtmlDialog)，他们只有在用户点击菜单，调用插件的时候，才会被加载执行，当脚本执行完毕，或者用户关闭对话框的时候，插件将会被清除出内存。
+- 给全局插件进行国际化
+- *避免全局脚本命名冲突* ：为了避免这个问题，我们需要给自己的变量和函数名，加上前缀或者后缀，例如我们给所有的变量增加一个前缀，叫做 HelloWorld，这样就可以有效避免这个问题了。
+** 内部对象
+- 内部对象 IWizExplorerApp：为知笔记主程序运行的时候，对外暴露的一个内部对象，通过 IWizExplorerApp，可以获得为知笔记正在打开的账户数据，主窗口各种控件等等。在三种插件里面，都提供了脚本直接访问这个对象的方法。
+- 为知笔记在运行插件脚本之前，也内置了一个对象：WizExplorerApp，类型同样是 IWizExplorerApp。另外， *Global 类型插件，在运行的时候，也与定义了 objApp 对象，同样是 IWizExplorerApp。在 全局插件 里面，我们直接使用了 objApp，而没有进行定义，是因为全局插件已经帮我们定义好了。*
+- 通过 IWizExplorerApp 来获得其他的对象：获得当前打开的账户数据库 (IWizDatabase)， *注意：在全局插件中，已经直接定义了 objDatabase 对象，在插件脚本中可以直接使用。* ；获得为知笔记主窗口对象 (IWizExplorerWindow)， *注意：在全局插件中，一定直接定义了 objWindow 对象，在插件脚本中可以直接使用。* ；一些常用的功能的对象 (IWizCommonUI)，这个对象提供了大量辅助性的功能，例如 ini 文件读写，注册表文件读写，文本文件读写等等， *注意：在全局插件中，一定直接创建了 objCommon 对象，在插件脚本中可以直接使用。* 。
+- 关于各种对象的描述，请参看接口描述部分。
+** 全局插件深入
+- 全局插件的初始化：从前面的介绍可以看出，全局插件有一个初始化过程，而这个初始化，实际上就是执行了一段脚本。该脚本保存在为知笔记安装路径下面的 plugins 文件夹，文件名是 global_plugin_share.js。定义了几个对象：objApp, objDatabase, objWindow 以及 objCommon；定义了两个函数，提供了 javascript 里面的 alert, confirm 这两个函数的功能，在全局插件脚本里面可以直接使用 WizAlert 来代替 alert, WizConfirm 来代替 confirm；实现了监听为知笔记一些消息的功能，简单描述了如何在插件脚本中响应这些事件。
+- 有关 *为知对于事件的响应* 可以看这里：[[http://www.wiz.cn/manual/plugin/course/dive-in-global-plugin.html][全局插件深入 | 为知笔记 Windows 插件开发文档]]
+** 开发 MathJax 插件
+- MathJax 是一个开源的基于 Ajax 的数学公式显示的解决方案，结合多种先进的 Web 技术，支持主流的浏览器。MathJax 根据页面中定义的 LaTex 数据，生成对应的数学公式。
+- 首先，如果一个笔记中包含 LaTeX 或者 MathML 编写的公式，那么在浏览的时候，我们可以动态加入 MathJax 渲染引擎，这样就可以将渲染笔记里面的公式了。
+- 我们将会在笔记 HTML 完成的时候，来判断当前笔记是否需要使用 MatjJax 来渲染，如果需要，则动态插入一行脚本，来渲染公式。
+** 读写配置文件
+- 和帐号相关的配置
+- 和帐号无关的配置
+- 注册表读写
+- ini 文件读写
+** Wiz API
+- 为知笔记 Windows 客户端开放了大量的 API，其中绝大部分，都通过 COM 提供，可以在 javascript, C#, C++, Delphi 等语言中使用。
+- 接口通过 IDL(Interface description language) 语言描述。
+** 接口定义文件（IDL）
+** 接口描述
+* 思路
+** 从 org 导出的 html 也支持 MathJax(本地/远程)
+MathJax 在 Wiz 中的实现方法可以参考 Wiz.Editor.md 和 Notes.Markdown 等笔记编辑器。主要参考 MathJax 在 html 中需要加什么。
+- 参考：[[http://app.wiz.cn/index.html?id=181][为知笔记应用中心－笔记编辑]]
+* 参考
+- [[http://www.wiz.cn/manual/plugin/][为知笔记开发文档概述 | 为知笔记 Windows 插件开发文档]]
+- [[https://msdn.microsoft.com/en-us/goglobal/bb964664.aspx][Locale IDs Assigned by Microsoft]]
+- [[http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML][cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML]]
