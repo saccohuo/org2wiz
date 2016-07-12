@@ -9,17 +9,21 @@
 下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
 ** TODO 从 org 导出的 html 也支持 MathJax(本地/远程)
 类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。插件介绍说本身已经支持本地 MathJax 解析功能，但是我按照介绍的方法生成的 html 没有被渲染。可以选择调用本地的 MathJax 还是远程的 MathJax。
+
+修改了代码使 html 中支持脚本后，发现 MathJax 还是不能显示。提示： =File failed to load: /extensions/TeX/noUndefined.js= 和 =File failed to load: file:////D:/Mydocuments/My%20Knowledge/temp/eeb22476-2d48-4faf-a78a-26aa088a2566/36/index_files/extensions/TeX/noUndefined.js= ，路径是我的安装目录的 temp 文件夹，说明有些时候加载远程下载到本地 temp 的 MathJax，但是网速问题下载是不会成功的，导致 MathJax 加载失败。有些时候直接加载本地的 MathJax，但是就是找不到文件位置，我已经放好了文件了，不知道为什么找不到，或者没权限执行。
 ** TODO 自动识别附件中需要导出的那个 org 文件
 附件中有时候不会只放置所需的 org 文件，有时候会加入一些其他附件，这个时候附件的自动排序会导致插件的导入 org 功能失效。此时必须手动修改 org 文件名，很不方便，也不智能。
 
 我的想法是：如果附件中只有一个 org 文件，就让该插件自动识别已添加的附件，并找出所需的 org 文件，然后进行 Org2Wiz 操作；如果有多个 org 文件会让使用者选择需要导出的 org 文件，否则就导出默认的那个文件（该功能还需要进行更周全的考虑）。
 ** TODO Org2Wiz 支持利用为知的导入 pdf 功能实现把 org 通过 tex 导出的 pdf 文件导入当前笔记中
-功能构思：org 常用的导出格式为 html 和 pdf(经过 LaTeX)，而 pdf 格式对公式的支持比 MathJax 好。因此想要实现可以选择导出 html 还是导出 pdf 到该笔记中。为知支持 pdf 导入，但是好像知道只可以导入到新笔记中，需要更仔细的调研。
+功能构思：org 常用的导出格式为 html 和 pdf(经过 LaTeX)，而 pdf 格式对公式的支持比 MathJax 好。因此想要实现可以选择导出 html 还是导出 pdf 到该笔记中。为知支持 pdf 导入，但是好像知道只可以导入到新笔记中，需要更仔细的调研。（前提是自己电脑上的 Emacs 已经配置好导出 pdf 的环境了）
 
 这个功能还涉及到 org 中针对 html 和 pdf 导出的相关设置，暂时不重点考虑，假设导出时这部分设置已经完善
 ** TODO 自动把当前文件夹同名的 pdf 和 tex 文件加入到附件中
 如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
 
+** 其他
+推荐一个 org 导出 html 的好 css：[[https://github.com/thomasf/solarized-css][thomasf/solarized-css]]
 * 为知笔记插件开发学习
 ** 基本问题
 - 可以使用 Chrome 开发工具来调试了。
@@ -58,6 +62,25 @@
 - 接口通过 IDL(Interface description language) 语言描述。
 ** 接口定义文件（IDL）
 ** 接口描述
+*** IWizDocument
+IWizDocument 是 WizKMCore.dll 包含的一个 COM 对象。文档对象必须隶属于一个数据库，因此您不能直接创建这个对象，而是需要通过 IWizDatabase 对象来获得数据库中的文档对象。 通过 IWizDatabase.GetAllDocuments，获得 IWizFolder.Documents 等等方法，可以获得数据库的文档信息。
+
+//获得/设置文档的类型，例如document，note，journal，contact等等
+[propget, id(11), helpstring("property Type")] HRESULT Type([out, retval] BSTR* pVal);
+[propput, id(11), helpstring("property Type")] HRESULT Type([in] BSTR newVal);
+
+//更改文档数据，通过一个HTML文件名和对应的URL来更新。
+[id(55), helpstring("method UpdateDocument6")] HRESULT UpdateDocument6([in] BSTR bstrHtmlFileName, [in] BSTR bstrURL, [in] LONG nFlags);
+
+// nFlags 的取值
+//更改文档数据，通过一个html文件来更新文档。
+//wizUpdateDocumentSaveSel                = 0x0001    保存选中部分，仅仅针对UpdateDocument2有效
+//wizUpdateDocumentIncludeScript        = 0x0002    包含html里面的脚本
+//wizUpdateDocumentShowProgress        = 0x0004    显示进度
+//wizUpdateDocumentSaveContentOnly        = 0x0008   只保存正文
+//wizUpdateDocumentSaveTextOnly        = 0x0010    只保存文字内容，并且为纯文本
+//wizUpdateDocumentDonotDownloadFile    = 0x0020    不从网络下载html里面的资源
+//wizUpdateDocumentAllowAutoGetContent    = 0x0040    如果只保存正文，允许使用自动获得正文方式
 * 思路
 ** 从 org 导出的 html 也支持 MathJax(本地/远程)
 MathJax 在 Wiz 中的实现方法可以参考 Wiz.Editor.md 和 Notes.Markdown 等笔记编辑器。主要参考 MathJax 在 html 中需要加什么。
