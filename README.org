@@ -35,6 +35,11 @@ strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-htm
 这个功能还涉及到 org 中针对 html 和 pdf 导出的相关设置，暂时不重点考虑，假设导出时这部分设置已经完善
 ** TODO 自动把当前文件夹同名的 pdf 和 tex 文件加入到附件中
 如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
+* 插件已更新功能
+- 去除 markdown 相关功能以及 mdExport 按钮。
+- 允许 org 导入的 html 笔记中使用 js。
+- 自动找到附件中的 org 文件，不需要一定在附件的第一位。
+- org 生成 html 更新到笔记中之后，不再删除生成的 html 文件
 * 参考
 + [[http://app.wiz.cn/index.html?id=181][org-mode插件 - 为知笔记应用中心]]
 + [[http://bbs.wiz.cn/thread-17135-1-3.html][Emacs Org-Mode 插件 - 为知笔记 (Wiz)Windows 客户端帮助区 - 为知笔记 (WizNote) 帮助中心 - Powered by Discuz!]]
