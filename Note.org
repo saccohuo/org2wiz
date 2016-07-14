@@ -7,10 +7,28 @@
 
 * 想法
 下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
-** TODO 从 org 导出的 html 也支持 MathJax(本地/远程)
+** TODO 从 org 导出的 html 也支持 MathJax(本地/远程) （完成 20%）
 类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。插件介绍说本身已经支持本地 MathJax 解析功能，但是我按照介绍的方法生成的 html 没有被渲染。可以选择调用本地的 MathJax 还是远程的 MathJax。
 
 修改了代码使 html 中支持脚本后，发现 MathJax 还是不能显示。提示： =File failed to load: /extensions/TeX/noUndefined.js= 和 =File failed to load: file:////D:/Mydocuments/My%20Knowledge/temp/eeb22476-2d48-4faf-a78a-26aa088a2566/36/index_files/extensions/TeX/noUndefined.js= ，路径是我的安装目录的 temp 文件夹，说明有些时候加载远程下载到本地 temp 的 MathJax，但是网速问题下载是不会成功的，导致 MathJax 加载失败。有些时候直接加载本地的 MathJax，但是就是找不到文件位置，我已经放好了文件了，不知道为什么找不到，或者没权限执行。
+
+为知会自动把 html 中的 mathjax online 路径中的 MathJax 下载，然后自动把 html 文件中的 MathJax 路径设置为本地一个 index_files/MathJax 的文件夹，导致加载失败。还发现直接使用完整 Emacs 导出和使用 emacs -q 命令行调用导出和为知中文档的 html 版本这三者都不相同。前两者不同的原因是我设置了变量 =org-html-mathjax-options= 和 =org-html-mathjax-template= 。‘
+
+因此，应该是为知本身对于 MathJax 路径的处理，或者是 nFlags 的取值造成的后果（需要测试）。
+
+终于修改好了 emacs -q 命令导致的 MathJax 路径未设置问题，cmd 和 shell 中的字符转义问题搞的好头大，作为 newbee 真心顶不住。但是我没有对 =%= 转义就已经正常了，这里记录一下，以后出问题好有个参考。
+- 参考
+  - [[http://www.i3s.unice.fr/~malapert/org/tips/emacs_orgmode.html][Yet Another Org-Mode Configuration]] MathJax CDN 章节
+  - [[http://orgmode.org/manual/Math-formatting-in-HTML-export.html][Math formatting in HTML export - The Org Manual]]
+  - [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Shell-Arguments.html][GNU Emacs Lisp Reference Manual: Shell Arguments]]
+  - [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Syntax-for-Strings.html][GNU Emacs Lisp Reference Manual: Syntax for Strings]]
+  - [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Action-Arguments.html#Action-Arguments][GNU Emacs Manual: Action Arguments]]
+  - [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Initial-Options.html#Initial-Options][GNU Emacs Manual: Initial Options]]
+  - [[http://www.cnblogs.com/jinzhenshui/archive/2012/05/17/2506129.html][bat、cmd 批处理中（或 DOS 环境）的特殊字符 - jinsen - 博客园]]
+- 待参考
+  - [[https://mathjax-chinese-doc.readthedocs.io/en/latest/start.html][入门指南 — MathJax Chinese Doc 2.0 documentation]]
+  - [[https://www.google.com/search?q=mathjax+%E6%9C%AC%E5%9C%B0%E6%B8%B2%E6%9F%93][mathjax 本地渲染 - Google 搜索]]
+  - [[https://www.douban.com/note/534786000/][MathJax 的一些坑]]
 ** TODO 自动识别附件中需要导出的那个 org 文件 （完成 50%）
 附件中有时候不会只放置所需的 org 文件，有时候会加入一些其他附件，这个时候附件的自动排序会导致插件的导入 org 功能失效。此时必须手动修改 org 文件名，很不方便，也不智能。
 
@@ -18,9 +36,10 @@
 
 现在已经实现的是找到附件中的一个 org 文件，然后导出。后续再想办法实现遇到多个 org 文件弹出窗口提示选择一个。（20160713）
 ** TODO Org2Wiz 支持利用为知的导入 pdf 功能实现把 org 通过 tex 导出的 pdf 文件导入当前笔记中
-功能构思：org 常用的导出格式为 html 和 pdf(经过 LaTeX)，而 pdf 格式对公式的支持比 MathJax 好。因此想要实现可以选择导出 html 还是导出 pdf 到该笔记中。为知支持 pdf 导入，但是好像知道只可以导入到新笔记中，需要更仔细的调研。（前提是自己电脑上的 Emacs 已经配置好导出 pdf 的环境了）
+功能构思：org 常用的导出格式为 html 和 pdf(经过 LaTeX)，而 pdf 格式对公式的支持比 MathJax 好。因此想要实现可以选择导出 html 还是导出 pdf 到该笔记中。这个功能还涉及到 org 中针对 html 和 pdf 导出的相关设置，暂时不重点考虑，假设导出时这部分设置已经完善。
 
-这个功能还涉及到 org 中针对 html 和 pdf 导出的相关设置，暂时不重点考虑，假设导出时这部分设置已经完善
+为知支持 pdf 导入，但是好像知道只可以导入到新笔记中 +，需要更仔细的调研+ 。经过咨询为知官方人员，回复说暂不提供导入文件的 API，这一个功能暂时没办法实现了。参考：[[http://tieba.baidu.com/p/4667898268?pid=93802206966&cid=93869622313#93869622313][为知笔记导入 pdf 文件的 API 是什么呢_为知笔记吧_百度贴吧]] 二楼官方回复。
+
 ** TODO 自动把当前文件夹同名的 pdf 和 tex 文件加入到附件中
 如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
 
@@ -138,3 +157,4 @@ MathJax 在 Wiz 中的实现方法可以参考 Wiz.Editor.md 和 Notes.Markdown 
 - [[http://www.wiz.cn/manual/plugin/][为知笔记开发文档概述 | 为知笔记 Windows 插件开发文档]]
 - [[https://msdn.microsoft.com/en-us/goglobal/bb964664.aspx][Locale IDs Assigned by Microsoft]]
 - [[http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML][cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML]]
+- [[http://www.w3school.com.cn/js/index.asp][JavaScript 教程 - W3School]]
