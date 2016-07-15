@@ -39,15 +39,22 @@ function OnOMButtonClicked(){
   if(MFGetFileExtension(OrgFile).toLowerCase() != '.org')
       return;
 
+  var offlineMJpath = org_mode_pluginPath.replace(/\\/g,'/') + "MathJax/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML";
+  // objWindow.ShowMessage(offlineMJpath.toString(), "handle of doc",0);
+  
   // 终于解决了 emacs -q 生成 html 时候 MathJax 的 Online 路径替换问题。还需要解决生成的 html 被导入到为知的文档中时替换为本地临时路径的问题
   // 这个字符串是在 cmd 里面直接执行的时候需要的字符串，再下面那一行是对这一行进行了一次转义。
   // cmd 中对左右尖括号的转义用上三角 ^ ，而不是用反斜杠 \ 。问号在 cmd 中需要转义，在 shell 中不需要转义
   // 作为新手写这些真的好累。 What The Fuck String and Escape
   // strMJpath = "(setq org-html-mathjax-options '((path \"https://cdn.mathjax.org/mathjax/latest/MathJax.js\?config=TeX-AMS-MML_HTMLorMML\")(scale \"100\")(align \"center\")(indent \"2em\")(mathml nil)))(setq org-html-mathjax-template \"^<script type=\\\"text/javascript\\\" src=\\\"%PATH\\\"^>^</script^>\")";
-  strMJpath = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
+  strOnlineMJpath = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
+  strnoMJpath = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \"\")";
+  strOfflineMJpath = "(setq org-html-mathjax-options '((path \\\"" + offlineMJpath +  "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
 
   strCmd = "emacs.exe";
-  strParam = " --batch -q --no-site-file --visit \"" + OrgFile + "\" --eval=\"" + strMJpath + "\" --funcall org-html-export-to-html"; 
+  strParam = " --batch -q --no-site-file --visit \"" + OrgFile + "\" --eval=\"" + strOfflineMJpath + "\" --funcall org-html-export-to-html";
+  // objWindow.ShowMessage(strParam, "handle of doc",0);
+  
 
   objCommon.RunExe(strCmd, strParam, true);
 
@@ -124,34 +131,74 @@ function OnOrgHtmlDocumentComplete(doc){
     // file_ext == '.mdp')
     //   MFInitMarkdown(doc);
 
-    // if(objCommon.GetValueFromIni(org_mode_pluginPath + "plugin.ini", "Plugin_0", "EnableMathJax") == '1' &&
-    //    ( file_ext == '.org')){
-    //   // 这个地方似乎一直没调用，因为没看到有js被添加到html文件中
-    //   // OM_addMathjaxScript(doc);
+    if(objCommon.GetValueFromIni(org_mode_pluginPath + "plugin.ini", "Plugin_0", "EnableMathJax") == '1' &&
+       (file_ext == '.org')){
+      // 这个地方似乎一直没调用，因为没看到有js被添加到html文件中
+      // OM_addMathjaxScript(doc);
 
-    //   // 如果是用的 IE，直接进行处理，如果不是的话，在 500ms 之后进行处理。处理方法： MFInitMathJax(doc)
-    //   // setTimeout(code,millisec) 方法用于在指定的毫秒数后调用函数或计算表达式。
-    //   if(MFIsIE())
-    //     MFInitMathJax(doc);
-    //   else
-    //     setTimeout(function(){MFInitMathJax(doc);},4000);
-    // }
+      // 如果是用的 IE，直接进行处理，如果不是的话，在 500ms 之后进行处理。处理方法： MFInitMathJax(doc)
+      // setTimeout(code,millisec) 方法用于在指定的毫秒数后调用函数或计算表达式。
+      // if(MFIsIE())
+      //   MFInitMathJax(doc);
+      // else
+      //   setTimeout(function(){MFInitMathJax(doc);},4000);
+    }
   }
   catch (err) {
     }
 }
 
-// MathJax function
 
+
+//--------------------------------Wiz Official MathJax Code---------------------
 function OM_addMathjaxScript(doc) {
-    if (!doc)
-        return;
-
-    var elem = doc.createElement("script");
-    elem.src = "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-    doc.body.appendChild(elem);
+  if (!doc){
+    objWindow.ShowMessage("Html Object doc is empty", "Error",0);
+    return;
+  }
+  // objWindow.ShowMessage(doc.scripts.item(0).text, "handle of doc",0);
+  // objWindow.ShowMessage(doc.scripts.item(1).text, "handle of doc",0);
+  // objWindow.ShowMessage(doc.scripts.item(2).text, "handle of doc",0);
+  // objWindow.ShowMessage(doc.scripts.item(3).text, "handle of doc",0);
+  // objWindow.ShowMessage(doc.scripts.item(4).text, "handle of doc",0);
+  
+  
+  
+  
+  var elem = doc.createElement("script");
+  elem.src = "http://cdn.mathjax.org/mathjax/latest/MathJax.js\?config=TeX-AMS-MML_HTMLorMML";
+  doc.body.appendChild(elem);
+  objWindow.CurrentDocument.UpdateDocument2(doc, 0x0006);
 }
 
+function OM_addMathjaxScriptToCurrentDocument() {
+  var doc = objWindow.CurrentDocumentHtmlDocument;
+  
+  if(!doc){
+    //   objWindow.ViewHtml("file:////D:/MyDocuments/My Knowledge/Data/shuaike945@gmail.com/Test/orgmodemathjaxtest.org_Attachments/blank.html", false);
+    objWindow.ShowMessage("Object doc is empty", "Error",0);
+   }
+  OM_addMathjaxScript(doc);
+}
+
+function OM_onHtmlDocumentCompleted(doc) {
+  try {
+    // 获得的 doc 是一个 WizDocument 对象，而不是 IHTMLDocument2 对象，而要进行 element_add script 必须得是 html对象
+    var objDocument = objWindow.CurrentDocument;
+    var exdoc = objWindow.CurrentDocumentHtmlDocument;
+    if (objDocument) {
+      // objWindow.ShowMessage("Wiz Object doc is not empty", "Normal",0);
+      // objWindow.ShowMessage(exdoc.body.toString(), "handle of doc",0);
+      OM_addMathjaxScript(exdoc);
+    }
+  }
+  catch (err) {
+  }
+}
+
+eventsHtmlDocumentComplete.add(OM_onHtmlDocumentCompleted);
+
+//-----------------------------End Wiz Official MathJax Code---------------------
 
 
 

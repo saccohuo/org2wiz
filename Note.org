@@ -16,7 +16,12 @@
 
 因此，应该是为知本身对于 MathJax 路径的处理，或者是 nFlags 的取值造成的后果（需要测试）。
 
-终于修改好了 emacs -q 命令导致的 MathJax 路径未设置问题，cmd 和 shell 中的字符转义问题搞的好头大，作为 newbee 真心顶不住。但是我没有对 =%= 转义就已经正常了，这里记录一下，以后出问题好有个参考。
+修改好了 emacs -q 命令导致的 MathJax 路径未设置问题，cmd 和 shell 中的字符转义问题搞的好头大，作为 newbee 真心顶不住。但是我没有对 =%= 转义就已经正常了，这里记录一下，以后出问题好有个参考。（20160715）
+
+终于把导出 html 时设置 MathJax 的本地路径的部分能做的事情做完了，现在可以设置三种方式：第一种是不使用 MathJax，这种情况为知会自动调用 MathJax 来做渲染，不在 html 中显示，但是这种渲染速度非常慢，感觉应该是为知从自己服务器拖下来的；第二种是使用远程 CDN 的 MathJax，但是导入为知之后会被强行替换为本地的 =index_files/MathJax.js= 的路径，但是又会提示该路径下不存在有几个 js 文件，导致无法渲染；第三种是使用本地的 MathJax，需要把 MathJax 的包下载到本地，同样导入为知之后会被强行替换为本地的 =index_files/MathJax.js= 的路径，同样也会导致无法渲染。只能跟为知的技术人员进一步沟通再说了，我能做的已经做完了，还需要做一点收尾工作（用个选项设置选择哪种 MathJax 渲染方式，具体逻辑还需要根据为知的回复再作考虑）。（20160716）
+- 过程学习
+  - objWindow.ShowMessage("test","title",1); 中最后的 nType 不能用 =0x00000001L= ，应该是为知的问题，说好的跟 Win 32 的 Messagebox 函数一样，然而竟然不能使用十六进制的数，细节做的真心差。
+
 - 参考
   - [[http://www.i3s.unice.fr/~malapert/org/tips/emacs_orgmode.html][Yet Another Org-Mode Configuration]] MathJax CDN 章节
   - [[http://orgmode.org/manual/Math-formatting-in-HTML-export.html][Math formatting in HTML export - The Org Manual]]
@@ -25,9 +30,23 @@
   - [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Action-Arguments.html#Action-Arguments][GNU Emacs Manual: Action Arguments]]
   - [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Initial-Options.html#Initial-Options][GNU Emacs Manual: Initial Options]]
   - [[http://www.cnblogs.com/jinzhenshui/archive/2012/05/17/2506129.html][bat、cmd 批处理中（或 DOS 环境）的特殊字符 - jinsen - 博客园]]
+  - [[http://bbs.csdn.net/topics/270058500#post-240575765][html 语言注释-CSDN 论坛]]
+  - [[http://bbs.csdn.net/topics/270058500#post-240586255][html 和 CSS 注释-CSDN 论坛]]
+  - [[http://www.w3school.com.cn/xml/xml_cdata.asp][XML CDATA]]
+  - [[http://www.w3schools.com/jsref/jsref_tostring_number.asp][JavaScript Number toString() Method]]
+  - [[https://msdn.microsoft.com/en-us/library/windows/desktop/ms645505(v=vs.85).aspx][MessageBox function (Windows)]]
+  - [[https://msdn.microsoft.com/en-us/library/ms535934(v=vs.85).aspx][appendChild method (Internet Explorer)]]
+  - [[https://msdn.microsoft.com/en-us/library/aa752574(v=vs.85).aspx][IHTMLDocument2 interface (Windows)]]
+  - [[https://msdn.microsoft.com/en-us/library/aa752604(v=vs.85).aspx][scripts Property (IHTMLDocument2)]]
+  - [[https://msdn.microsoft.com/en-us/library/hh870051(v=vs.85).aspx][item method (Preliminary)]]
+  - [[https://msdn.microsoft.com/en-us/library/ms535892(v=vs.85).aspx][script element | script object (Internet Explorer)]]
+  - [[https://msdn.microsoft.com/en-us/library/ms534678(v=vs.85).aspx][text property (Internet Explorer)]]
 - 待参考
+  - [[http://docs.mathjax.org/en/latest/start.html][Getting Started — MathJax 2.6 documentation]]
   - [[https://mathjax-chinese-doc.readthedocs.io/en/latest/start.html][入门指南 — MathJax Chinese Doc 2.0 documentation]]
   - [[https://www.google.com/search?q=mathjax+%E6%9C%AC%E5%9C%B0%E6%B8%B2%E6%9F%93][mathjax 本地渲染 - Google 搜索]]
+  - [[https://mathjax-chinese-doc.readthedocs.io/en/latest/configuration.html][加载和配置 MathJax — MathJax Chinese Doc 2.0 documentation]]
+  - [[https://www.caoqq.net/mathjax-install-configure.html][MathJax 安装与配置以及常用符号对照 | 青劲草]]
   - [[https://www.douban.com/note/534786000/][MathJax 的一些坑]]
 ** TODO 自动识别附件中需要导出的那个 org 文件 （完成 50%）
 附件中有时候不会只放置所需的 org 文件，有时候会加入一些其他附件，这个时候附件的自动排序会导致插件的导入 org 功能失效。此时必须手动修改 org 文件名，很不方便，也不智能。
@@ -35,12 +54,17 @@
 我的想法是：如果附件中只有一个 org 文件，就让该插件自动识别已添加的附件，并找出所需的 org 文件，然后进行 Org2Wiz 操作；如果有多个 org 文件会让使用者选择需要导出的 org 文件，否则就导出默认的那个文件（该功能还需要进行更周全的考虑）。
 
 现在已经实现的是找到附件中的一个 org 文件，然后导出。后续再想办法实现遇到多个 org 文件弹出窗口提示选择一个。（20160713）
-** TODO Org2Wiz 支持利用为知的导入 pdf 功能实现把 org 通过 tex 导出的 pdf 文件导入当前笔记中
+** CANCELLED Org2Wiz 支持利用为知的导入 pdf 功能实现把 org 通过 tex 导出的 pdf 文件导入当前笔记中（无法完成，不提供相关 API）
+CLOSED: [2016-07-15 Fri 16:18]
+:LOGBOOK:
+- State "CANCELLED"  from "TODO"       [2016-07-15 Fri 16:18] \\
+  为知不提供相关 API
+:END:
 功能构思：org 常用的导出格式为 html 和 pdf(经过 LaTeX)，而 pdf 格式对公式的支持比 MathJax 好。因此想要实现可以选择导出 html 还是导出 pdf 到该笔记中。这个功能还涉及到 org 中针对 html 和 pdf 导出的相关设置，暂时不重点考虑，假设导出时这部分设置已经完善。
 
 为知支持 pdf 导入，但是好像知道只可以导入到新笔记中 +，需要更仔细的调研+ 。经过咨询为知官方人员，回复说暂不提供导入文件的 API，这一个功能暂时没办法实现了。参考：[[http://tieba.baidu.com/p/4667898268?pid=93802206966&cid=93869622313#93869622313][为知笔记导入 pdf 文件的 API 是什么呢_为知笔记吧_百度贴吧]] 二楼官方回复。
 
-** TODO 自动把当前文件夹同名的 pdf 和 tex 文件加入到附件中
+** TODO 自动或者一键把当前文件夹同名的 pdf 和 tex 文件加入到附件中
 如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
 
 现在有个问题： Emacs 中 org 文件在中文文件夹直接导出 pdf 会出问题，但是 org 导出 tex 和 tex 导出 pdf 在中文文件夹都没有问题，正在想办法解决。
@@ -153,6 +177,8 @@
 ** 从 org 导出的 html 也支持 MathJax(本地/远程)
 MathJax 在 Wiz 中的实现方法可以参考 Wiz.Editor.md 和 Notes.Markdown 等笔记编辑器。主要参考 MathJax 在 html 中需要加什么。
 - 参考：[[http://app.wiz.cn/index.html?id=181][为知笔记应用中心－笔记编辑]]
+* MathJax 学习
+- MathJax 本地文件如果使用 =unpacked= 文件夹的部分，最终渲染出来是以字符形式显示。如果直接使用 MathJax 最外面的几个文件夹（ =config= ， =extensions= ， =fonts= ， =jax= ， =localization= ），最终渲染出来是以 Math 对象形式显示（ =fonts= 文件夹似乎可以不要）。
 * 参考
 - [[http://www.wiz.cn/manual/plugin/][为知笔记开发文档概述 | 为知笔记 Windows 插件开发文档]]
 - [[https://msdn.microsoft.com/en-us/goglobal/bb964664.aspx][Locale IDs Assigned by Microsoft]]
