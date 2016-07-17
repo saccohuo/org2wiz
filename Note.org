@@ -7,7 +7,7 @@
 
 * 想法
 下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
-** TODO 从 org 导出的 html 也支持 MathJax(本地/远程) （完成 20%）
+** TODO 从 org 导出的 html 也支持 MathJax(本地/远程) （完成 60%）
 类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。插件介绍说本身已经支持本地 MathJax 解析功能，但是我按照介绍的方法生成的 html 没有被渲染。可以选择调用本地的 MathJax 还是远程的 MathJax。
 
 修改了代码使 html 中支持脚本后，发现 MathJax 还是不能显示。提示： =File failed to load: /extensions/TeX/noUndefined.js= 和 =File failed to load: file:////D:/Mydocuments/My%20Knowledge/temp/eeb22476-2d48-4faf-a78a-26aa088a2566/36/index_files/extensions/TeX/noUndefined.js= ，路径是我的安装目录的 temp 文件夹，说明有些时候加载远程下载到本地 temp 的 MathJax，但是网速问题下载是不会成功的，导致 MathJax 加载失败。有些时候直接加载本地的 MathJax，但是就是找不到文件位置，我已经放好了文件了，不知道为什么找不到，或者没权限执行。
@@ -19,9 +19,25 @@
 修改好了 emacs -q 命令导致的 MathJax 路径未设置问题，cmd 和 shell 中的字符转义问题搞的好头大，作为 newbee 真心顶不住。但是我没有对 =%= 转义就已经正常了，这里记录一下，以后出问题好有个参考。（20160715）
 
 终于把导出 html 时设置 MathJax 的本地路径的部分能做的事情做完了，现在可以设置三种方式：第一种是不使用 MathJax，这种情况为知会自动调用 MathJax 来做渲染，不在 html 中显示，但是这种渲染速度非常慢，感觉应该是为知从自己服务器拖下来的；第二种是使用远程 CDN 的 MathJax，但是导入为知之后会被强行替换为本地的 =index_files/MathJax.js= 的路径，但是又会提示该路径下不存在有几个 js 文件，导致无法渲染；第三种是使用本地的 MathJax，需要把 MathJax 的包下载到本地，同样导入为知之后会被强行替换为本地的 =index_files/MathJax.js= 的路径，同样也会导致无法渲染。只能跟为知的技术人员进一步沟通再说了，我能做的已经做完了，还需要做一点收尾工作（用个选项设置选择哪种 MathJax 渲染方式，具体逻辑还需要根据为知的回复再作考虑）。（20160716）
-- 过程学习
-  - objWindow.ShowMessage("test","title",1); 中最后的 nType 不能用 =0x00000001L= ，应该是为知的问题，说好的跟 Win 32 的 Messagebox 函数一样，然而竟然不能使用十六进制的数，细节做的真心差。
 
+在工具菜单下用选项来设置 Org2Wiz 默认需要添加的标签，设置 Org2Wiz 使用 MathJax 的哪一种渲染方式。（20160717）
+
+- 添加各种选项设置
+  - 读取写入 ini 文件
+    //从ini文件读取一个字符串。bstrFileName：ini文件名；bstrSection：ini里面的section；bstrKey：key；返回值：读取到的值
+    [id(21), helpstring("method GetValueFromIni")] HRESULT GetValueFromIni([in] BSTR bstrFileName, [in] BSTR bstrSection, [in] BSTR bstrKey, [out,retval] BSTR* pbstrValue);
+
+    //向ini文件写入一个字符串。bstrFileName：ini文件名；bstrSection：ini里面的section；bstrKey：key；bstrValue：写入的值
+    [id(22), helpstring("method SetValueToIni")] HRESULT SetValueToIni([in] BSTR bstrFileName, [in] BSTR bstrSection, [in] BSTR bstrKey, [in] BSTR bstrValue);
+  - 给文档添加一个标签（这个标签可能已经存在，也可能不存在）
+    - 现在实现的添加完标签之后，还需要切换一下文档才可以看到添加好的标签，后续想办法解决。
+    - 暂时只能添加一个默认标签，以后会考虑设置多个（只需要在 ini 文件中用分号分开即可）
+    - [[http://www.wiz.cn/manual/plugin/api/descriptions/IWizTagCollection.html][IWizTagCollection | 为知笔记 Windows 插件开发文档]] 里面的枚举接口我不会用
+    - [[http://www.w3schools.com/jsref/jsref_forEach.asp][JavaScript Array forEach() Method]]
+    - [[http://www.wiz.cn/manual/plugin/api/descriptions/IWizDatabase.html][IWizDatabase | 为知笔记 Windows 插件开发文档]]
+    - [[http://www.wiz.cn/manual/plugin/api/descriptions/IWizTag.html][IWizTag | 为知笔记 Windows 插件开发文档]]
+    - [[http://www.wiz.cn/manual/plugin/api/descriptions/IWizTagCollection.html][IWizTagCollection | 为知笔记 Windows 插件开发文档]]
+    - [[http://www.wiz.cn/manual/plugin/api/descriptions/IWizDocument.html][IWizDocument | 为知笔记 Windows 插件开发文档]]
 - 参考
   - [[http://www.i3s.unice.fr/~malapert/org/tips/emacs_orgmode.html][Yet Another Org-Mode Configuration]] MathJax CDN 章节
   - [[http://orgmode.org/manual/Math-formatting-in-HTML-export.html][Math formatting in HTML export - The Org Manual]]
@@ -70,7 +86,11 @@ CLOSED: [2016-07-15 Fri 16:18]
 现在有个问题： Emacs 中 org 文件在中文文件夹直接导出 pdf 会出问题，但是 org 导出 tex 和 tex 导出 pdf 在中文文件夹都没有问题，正在想办法解决。
 
 还需要找到为知直接在当前笔记导入 pdf 文件（覆盖原笔记）的 API。
-** TODO 给出一个选项来设置 org 笔记自动添加的标签
+** DONE 给出一个选项来设置 org 笔记自动添加的标签
+CLOSED: [2016-07-17 Sun 02:58]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2016-07-17 Sun 02:58]
+:END:
 想添加标签还是比较简单的，但是只适合自己使用，不适合作为大众功能。需要添加一个选项可以设置相关选项才能给大家使用。
 ** 其他
 推荐一个 org 导出 html 的好 css：[[https://github.com/thomasf/solarized-css][thomasf/solarized-css]]
