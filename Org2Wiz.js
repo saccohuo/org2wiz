@@ -4,27 +4,17 @@ var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
 var omOptionFileName = org_mode_pluginPath + "options.ini";
 // objWindow.ShowMessage(omOptionFileName.toString(), "omOptionFileName",0);
 
-var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "MathJaxOption");
-// objWindow.ShowMessage(omMJOption.toString(), "omMJOption",0);
-
-var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
-
 
 //-------------- Add Org2Wiz button and function OnOMButtonClicked-----------------------
 function InitOMButton(){
-  var languangeFileName = org_mode_pluginPath + "plugin.ini";
+  // var languangeFileName = org_mode_pluginPath + "plugin.ini";
   objWindow.AddToolButton("document", "OMButton", "Org2Wiz", "", "OnOMButtonClicked");
+  objWindow.AddToolButton("document", "OMAttach", "AddAttach", "", "OnOMAttachClicked");
 }
 
-//-------------- Add mdExport button and function OnmdExportButtonClicked-----------------------
-// function InitmdExportButton(){
-//   var languangeFileName = org_mode_pluginPath + "plugin.ini";
-//   objWindow.AddToolButton("document", "mdExportButton", "mdExport", "", "OnmdExportButtonClicked");
-// }
 
 //-------------Init button complete-----------------------
 InitOMButton();
-//InitmdExportButton();
 
 
 //--------------- check attachment complete---------------
@@ -32,22 +22,34 @@ InitOMButton();
 function OnOMButtonClicked(){ 
   if(MFGetFileExtension(objWindow.CurrentDocument.Title).toLowerCase() != '.org')
     return;
-    
+
   if(objWindow.CurrentDocument.AttachmentCount==0)
     return;
 
-  // 已经修改为找到 org 文件才可以，还需要修改来让插件自动找到合适的 org 附件，或者找到多个的情况提示选择
-  var AttachCount = objWindow.CurrentDocument.Attachments.Count;
-  var OrgFile = 0;
-  // 此处还可以使用 _NewEnum 然后使用 for_each 结构
-  for (var AttachNum = 0; AttachNum < AttachCount; AttachNum++ ) {
-    OrgFile =  objWindow.CurrentDocument.Attachments.Item(AttachNum).FileName;
-    if(MFGetFileExtension(OrgFile).toLowerCase() == '.org')
-      break;
-  }
+  var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "MathJaxOption");
+  // objWindow.ShowMessage(omMJOption.toString(), "omMJOption",0);
+  var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
 
-  if(MFGetFileExtension(OrgFile).toLowerCase() != '.org')
-      return;
+
+  var orgAttach = GetOrg(objWindow.CurrentDocument) + ".org";
+
+  if(orgAttach == ".org"){
+    return;
+  }
+  // // 已经修改为找到 org 文件才可以，还需要修改来让插件自动找到合适的 org 附件，或者找到多个的情况提示选择
+  // var AttachCount = objWindow.CurrentDocument.Attachments.Count;
+  // var OrgFile = 0;
+  // // 此处还可以使用 _NewEnum 然后使用 for_each 结构
+  // for (var AttachNum = 0; AttachNum < AttachCount; AttachNum++ ) {
+  //   OrgFile =  objWindow.CurrentDocument.Attachments.Item(AttachNum).FileName;
+  //   if(MFGetFileExtension(OrgFile).toLowerCase() == '.org')
+  //     break;
+  // }
+
+  // if(MFGetFileExtension(OrgFile).toLowerCase() != '.org'){
+  //   objWindow.ShowMessage("There is no org file in this document!", "Warning",0);
+  //   return;
+  // }
 
   var offlineMJpath = org_mode_pluginPath.replace(/\\/g,'/') + "MathJax/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML";
   // objWindow.ShowMessage(offlineMJpath.toString(), "handle of doc",0);
@@ -84,13 +86,13 @@ function OnOMButtonClicked(){
   }
 
   strCmd = "emacs.exe";
-  strParam = " --batch -q --no-site-file --visit \"" + OrgFile + "\" --eval=\"" + strMJSetting + "\" --funcall org-html-export-to-html";
+  strParam = " --batch -q --no-site-file --visit \"" + OrgAttach + "\" --eval=\"" + strMJSetting + "\" --funcall org-html-export-to-html";
   // objWindow.ShowMessage(strParam, "handle of doc",0);
   
 
   objCommon.RunExe(strCmd, strParam, true);
 
-  var HtmlFile = OrgFile.replace(/\.org$/i,'.html'); 
+  var HtmlFile = orgAttach.replace(/\.org$/i,'.html');
   if(!objCommon.PathFileExists(HtmlFile))
     return;
 
@@ -152,57 +154,34 @@ function OnOMButtonClicked(){
 
 }
 
-// function OnmdExportButtonClicked(){
-// //  var ext = MFGetFileExtension(objWindow.CurrentDocument.Title).toLowerCase();
-// //  if (ext != '.mdp' && ext !='.org')
-// //    return;
-    
-//   var exportfilename = objWindow.CurrentDocument.Title.replace(MFGetFileExtension(objWindow.CurrentDocument.Title), ".export");
-//   objWindow.CurrentDocument.Type = "wholewebpage";
+function OnOMAttachClicked(){
+  var omAttachmentsOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
   
-//   var objFolder = objDatabase.GetFolderByLocation("/Export/", true);
-//   var objDoc = objFolder.CreateDocument2(exportfilename, "");
-//   objDoc.ChangeTitleAndFileName(exportfilename);
-//   objDoc.Type = "wholewebpage";
-  
-  
-// ///////////////////////// convert outer css file into embeded style
-//   var csstxt_all="";
-//   for ( var i = 0; i < objWindow.CurrentDocumentHtmlDocument.styleSheets.length; i++ ){
-//     try{
-//     	for(var j=0; j<objWindow.CurrentDocumentHtmlDocument.styleSheets.item(i).cssRules.length; j++)
-//         csstxt_all+= objWindow.CurrentDocumentHtmlDocument.styleSheets.item(i).cssRules[j].cssText;
-//     }catch(ex){
-//     	csstxt_all+= objWindow.CurrentDocumentHtmlDocument.styleSheets.item(i).cssText;
-//     }
-//   }
-//   oLinks=objWindow.CurrentDocumentHtmlDocument.getElementsByTagName('link');
-//   for(var i=0; i< oLinks.length; i++){
-//     if(oLinks.item(i).rel=='stylesheet')
-//       try{oLinks.item(i).parentNode.removeChild(oLinks.item(i));} catch(ex){oLinks.item(i).removeNode(true);}
-//   }
-//   oStyles=objWindow.CurrentDocumentHtmlDocument.getElementsByTagName('style');
-//   for(var i=0; i< oStyles.length; i++){
-//     try{oStyles.item(i).parentNode.removeChild(oStyles.item(i));} catch(ex){oStyles.item(i).removeNode(true);}
-//   }
-//   MFAppendStyleInnerHtml(objWindow.CurrentDocumentHtmlDocument, csstxt_all);
-// ////////////////////////  
+  var curDoc = objWindow.CurrentDocument;
+  if(curDoc.AttachmentCount==0)
+    return;
+  var orgName = GetOrg(curDoc);
+  var attachPath = curDoc.AttachmentsFilePath;
+  // objWindow.ShowMessage("testbefore", "Debug",0);
+  // objWindow.ShowMessage(orgName, "Debug orgName",0);
+  // objWindow.ShowMessage(omAttachmentsOption.toString(), "Debug omAttachmentsoption",0);
 
-//   //objDoc.UpdateDocument2(objWindow.CurrentDocumentHtmlDocument, 0x24);
-//   objDoc.UpdateDocument4('<html>'+objWindow.CurrentDocumentHtmlDocument.documentElement.innerHTML+'</html>',"", 0x4);
-  
-//   WizAlert("Export Ok!");
-// }
+  if(orgName != "" && omAttachmentsOption != 0){
+    // objWindow.ShowMessage("testafter", "Debug",0);
+    // objWindow.ShowMessage(orgName + ".tex", "Debug .tex",0);
+    var texFile = curDoc.AddAttachment(orgName + ".tex");
+    var pdfFile = curDoc.AddAttachment(orgName + ".pdf");
+  }
+  else{
+    return;
+  }
+}
 
 //---------------------------------------------------------------
 // eventsHtmlDocumentComplete.add(OnOrgHtmlDocumentComplete);
 
 function OnOrgHtmlDocumentComplete(doc){
-  try {
     var file_ext = MFGetFileExtension(objWindow.CurrentDocument.Title).toLowerCase();
-    // if(objCommon.GetValueFromIni(org_mode_pluginPath + "plugin.ini", "Plugin_0", "EnableMarkdown") == '1' && 
-    // file_ext == '.mdp')
-    //   MFInitMarkdown(doc);
 
     if(objCommon.GetValueFromIni(org_mode_pluginPath + "plugin.ini", "Plugin_0", "EnableMathJax") == '1' &&
        (file_ext == '.org')){
@@ -216,11 +195,36 @@ function OnOrgHtmlDocumentComplete(doc){
       // else
       //   setTimeout(function(){MFInitMathJax(doc);},4000);
     }
-  }
-  catch (err) {
-    }
 }
 
+
+//---------------------Get org file from the document attachments-------------
+function GetOrg(curDoc){
+  // 后续还需要检查附件是否下载到本地 Downloaded API
+  // 已经修改为找到 org 文件才可以，还需要修改来让插件自动找到合适的 org 附件，或者找到多个的情况提示选择
+  var AttachCount = curDoc.Attachments.Count;
+  var OrgFilename = 0;
+  var OrgName = 0;
+  if(AttachCount==0)
+    return;
+  // 此处还可以使用 _NewEnum 然后使用 for_each 结构
+  for (var AttachNum = 0; AttachNum < AttachCount; AttachNum++ ) {
+    OrgFilename =  curDoc.Attachments.Item(AttachNum).FileName;
+    if(MFGetFileExtension(OrgFilename).toLowerCase() == '.org'){
+      OrgName =  OrgFilename.replace(/.org$/, ''); 
+      break;
+    }
+  }
+  // objWindow.ShowMessage(OrgName, "Debug",0);
+
+  if(MFGetFileExtension(OrgFilename).toLowerCase() == '.org'){
+    return OrgName;
+  }
+  else {
+    objWindow.ShowMessage("There is no org file in this document!", "Warning",0);
+    return;
+  }
+}
 
 
 //--------------------------------Wiz Official MathJax Code---------------------
@@ -278,7 +282,8 @@ eventsHtmlDocumentComplete.add(OM_onHtmlDocumentCompleted);
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 //--------------------------------------------
-function MFGetFileExtension(Fstr){ 
+// 这个地方似乎没有考虑没有后缀名的文件
+function MFGetFileExtension(Fstr){
   pos = Fstr.lastIndexOf('.');
   if(pos == -1)
     return "";
@@ -392,90 +397,3 @@ function MFInitMathJax(doc){
   //the 2nd method
   MFAppendScriptSrc(doc, 'BODY', "text/javascript", org_mode_pluginPath+"MathJax\\MathJax.js?config=Accessible");
 }
-//------------------------------------------------------------------------
-//------------------------------------------------------------
-/* Choose Which version of Markdown*/
-
-// function MFParseMarkdownContent(objHtmDoc,MarkdownFunction){
-//   var title = objHtmDoc.title; 
-//   if (MFGetFileExtension(title).toLowerCase() == '.mdp'){
-//     //var a=objHtmDoc.getElementById('WizHtmlContentId'); 
-
-//     var objImgs = objHtmDoc.getElementsByTagName('img'); 
-//     for(var i=0; i<objImgs.length; i++)    {
-//       var oImg = objImgs.item(i);
-//       var oElem= objHtmDoc.createElement("div"); 
-//       oElem.innerHTML = "<input type=\"hidden\">!["+ oImg.src + "](" + oImg.src + ")"; 
-//       oImg.parentNode.insertBefore( oElem, oImg);
-//     }    
-    
-//     var a=objHtmDoc.getElementsByTagName('BODY').item(0); 
-//     var innerText=a.innerText;
-//     innerText=innerText.replace(/ \\\\ /ig,' \\\\\\\\ ');
-
-//     var md_reg_DoItalicsAndBold_31 = new RegExp(
-//           '(((?!\\w)[\\s\\S]|^)\\${1,2})'
-//         + '(?=\\S)'
-//         + '(?!_\\$)'
-//         +  '([^\\$]+?)'
-//         +  '_'
-//         +  '([^\\$]+?)'
-//         +  '_'
-//         +  '([^\\$]+?)'
-//         + '\\${1,2}'
-//         + '(?!\\w)'
-//         , "g" );
-//     innerText=innerText.replace(md_reg_DoItalicsAndBold_31, "$1$3\\_$4\\_$5$1").replace(/(\r\n){2}/g, "\r\n");
-    
-//     a.innerHTML=(MarkdownFunction(innerText));
-//     var codeBlocks = objHtmDoc.getElementsByTagName("code");
-//     for (var i = 0; i < codeBlocks.length; i++){
-//       hljs.highlightBlock(codeBlocks[i], '    ');
-//     }
-//   }
-// }
-
-// function MFInitMarkdown(doc){
-//   MarkdownImplementation="MFInit_" + objCommon.GetValueFromIni(org_mode_pluginPath + "plugin.ini", "Plugin_0", "MarkdownImplementation")+"(doc);";
-//   eval(MarkdownImplementation);
-// }
-// //-----------------------------------------------------------------
-
-// function MFInit_js_markdown_extra(doc){
-//   MFAppendScriptSrc(doc, 'HEAD', "text/javascript", org_mode_pluginPath+"Markdown\\js_markdown_extra\\js-markdown-extra.js"); 
-//   MFAppendScriptSrc(doc, 'HEAD', "text/javascript", org_mode_pluginPath+"Markdown\\js_markdown_extra\\highlight.pack.js");
-//   MFAppendCssSrc(doc, org_mode_pluginPath+"Markdown\\js_markdown_extra\\GitHub2.css");
-//   MFAppendCssSrc(doc, org_mode_pluginPath+"Markdown\\js_markdown_extra\\md.css");
-  
-//   if(MFIsIE())
-//     MFAppendScriptInnerHtml(doc, 'BODY', "text/javascript", 
-//                           MFGetFileExtension.toString()+
-//                           MFParseMarkdownContent.toString()+
-//                           "MFParseMarkdownContent(document,Markdown);"
-//     );
-//   else
-//     MFAppendScriptInnerHtml(doc, 'BODY', "text/javascript", 
-//                           MFGetFileExtension.toString()+
-//                           MFParseMarkdownContent.toString()+
-//                           "setTimeout(function(){MFParseMarkdownContent(document,Markdown);}, 200);"
-//     );
-// }
-
-// function MFInit_marked(doc){
-//   MFAppendScriptSrc(doc, 'HEAD', "text/javascript", org_mode_pluginPath+"Markdown\\marked\\marked.js"); 
-//   MFAppendScriptSrc(doc, 'HEAD', "text/javascript", org_mode_pluginPath+"Markdown\\marked\\highlight.pack.js");
-//   MFAppendCssSrc(doc, org_mode_pluginPath+"Markdown\\marked\\GitHub2.css");
-
-//   if(MFIsIE())
-// 	  MFAppendScriptInnerHtml(doc, 'HEAD', "text/javascript", 
-// 	                        MFGetFileExtension.toString()+
-// 	                        MFParseMarkdownContent.toString()+
-// 	                        "MFParseMarkdownContent(document, marked);"
-// 	  );
-// 	else
-// 	  MFAppendScriptInnerHtml(doc, 'HEAD', "text/javascript", 
-// 	                        MFGetFileExtension.toString()+
-// 	                        MFParseMarkdownContent.toString()+
-// 	                        "setTimeout(function(){MFParseMarkdownContent(document, marked);}, 200);"
-// 	  );
-// }
