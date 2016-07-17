@@ -80,12 +80,26 @@ CLOSED: [2016-07-15 Fri 16:18]
 
 为知支持 pdf 导入，但是好像知道只可以导入到新笔记中 +，需要更仔细的调研+ 。经过咨询为知官方人员，回复说暂不提供导入文件的 API，这一个功能暂时没办法实现了。参考：[[http://tieba.baidu.com/p/4667898268?pid=93802206966&cid=93869622313#93869622313][为知笔记导入 pdf 文件的 API 是什么呢_为知笔记吧_百度贴吧]] 二楼官方回复。
 
-** TODO 自动或者一键把当前文件夹同名的 pdf 和 tex 文件加入到附件中
+** DONE 自动或者一键把当前文件夹同名的 pdf 和 tex 文件加入到附件中
+CLOSED: [2016-07-17 Sun 17:49]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2016-07-17 Sun 17:49]
+:END:
 如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
 
 现在有个问题： Emacs 中 org 文件在中文文件夹直接导出 pdf 会出问题，但是 org 导出 tex 和 tex 导出 pdf 在中文文件夹都没有问题，正在想办法解决。
 
 还需要找到为知直接在当前笔记导入 pdf 文件（覆盖原笔记）的 API。
+- 参考
+  - [[http://www.w3school.com.cn/jsref/jsref_obj_number.asp][JavaScript Number 对象]]
+  - [[http://stackoverflow.com/questions/1133770/how-do-i-convert-a-string-into-an-integer-in-javascript][How do I convert a string into an integer in JavaScript? - Stack Overflow]]
+  - [[http://my.oschina.net/hmj/blog/186189][javascript对象类型判断 - big军 的个人空间 - 开源中国社区]]
+  - [[https://segmentfault.com/q/1010000000464600][javascript - 如何正确判断 js 数据类型 - SegmentFault]]
+  - [[http://www.ruanyifeng.com/blog/2014/03/undefined-vs-null.html][undefined 与 null 的区别 - 阮一峰的网络日志]]
+  - [[http://www.111cn.net/wy/js-ajax/43624.htm][js 中去掉文件的后缀名正则表达式 - js 教程 - 网页制作 - 壹聚教程网]]
+  - [[http://www.jbxue.com/article/8022.html][Javascript 函数返回多个值的方法介绍_javascript 入门教程 - 脚本学堂]]
+  - [[http://www.cnblogs.com/oec2003/archive/2009/12/11/1621775.html][在 JS 方法中返回多个值的三种方法 - oec2003 - 博客园]]
+  - 现在还不知道怎么判断某个本地文件是否存在
 ** DONE 给出一个选项来设置 org 笔记自动添加的标签（完成80%,暂时只支持一个默认标签）
 CLOSED: [2016-07-17 Sun 02:58]
 :LOGBOOK:
