@@ -27,7 +27,7 @@ function OnOMButtonClicked(){
     return;
 
   var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "MathJaxOption");
-  // objWindow.ShowMessage(omMJOption.toString(), "omMJOption",0);
+  // objWindow.ShowMessage(omMJOption, "omMJOption",0);
   var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
 
 
@@ -67,8 +67,9 @@ function OnOMButtonClicked(){
   var strMJTpl = "(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
   var strNoMJTpl = "(setq org-html-mathjax-template \\\"\\\")";
 
-  var strOnlineMJ = strMJTpl + strOnlinePath;
-  var strOfflineMJ = strMJTpl + strOfflinePath;
+  // 不知道为什么这三个 emacs 参数的路径和模板顺序设置还不太一样，没有 mathjax 的模板要放在路径设置前面，其他的反之
+  var strOnlineMJ = strOnlinePath + strMJTpl;
+  var strOfflineMJ = strOfflinePath + strMJTpl;
   var strNoMJ = strNoMJTpl + strOnlinePath;
   var strMJSetting = strNoMJ;
   // strOnlineMJ = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";

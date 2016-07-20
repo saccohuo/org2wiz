@@ -8,5 +8,5 @@ var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "Defau
 
 var newomDefaultTag = objCommon.InputBox("默认标签", "添加 Org2Wiz 默认添加的标签，例如 “原创”。对大小写敏感。", omDefaultTag);
 if(newomDefaultTag != ""){
-  objCommon.SetValueToIni(omOptionFileName, "Options", "DefaultTag", newomDefaultTag);
+  objCommon.SetValueToIni(omOptionFileName, "Options", "DefaultTag", newomDefaultTag.toLowerCase());
 }

@@ -8,5 +8,5 @@ var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "MathJax
 
 var newomMJOption = objCommon.InputBox("MathJax 设置", "No 不使用 MathJax；Online 使用在线 MathJax；Offline 使用本地 MathJax。对大小写不敏感。", omMJOption);
 if(newomMJOption != ""){
-  objCommon.SetValueToIni(omOptionFileName, "Options", "MathJaxOption", newomMJOption);
+  objCommon.SetValueToIni(omOptionFileName, "Options", "MathJaxOption", newomMJOption.toLowerCase());
 }
