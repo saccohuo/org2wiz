@@ -107,13 +107,14 @@ function OnOMButtonClicked(){
   // objWindow.CurrentDocument 的对象类型是 WizDocument
   // 获得/设置文档的类型，例如document，note，journal，contact等等
   // 为什么设置为 wholewebpage？没找到介绍有这个类型的位置
-  objWindow.CurrentDocument.Type = "wholewebpage";
+  // objWindow.CurrentDocument.Type = "wholewebpage";
 
   // 更改文档数据，通过一个HTML文件名和对应的URL来更新。
   // nFlags 的值设置为 0x0006，表示“显示进度”和“包含 html 中的脚本”
   // 可以使用 UpdateDocument、UpdateDocument5 和 UpdateDocument6 来更新文档数据，但是更新的时候资源管理器不要打开为知的 temp 文件夹
 
   objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0006);
+  // objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0000);
   // objWindow.CurrentDocument.UpdateDocument6(HtmlFile, HtmlFile, 0x0006);
   // objWindow.CurrentDocument.UpdateDocument5(HtmlFile);
 
@@ -280,7 +281,7 @@ function OM_onHtmlDocumentCompleted(doc) {
   }
 }
 
-eventsHtmlDocumentComplete.add(OM_onHtmlDocumentCompleted);
+// eventsHtmlDocumentComplete.add(OM_onHtmlDocumentCompleted);
 
 //-----------------------------End Wiz Official MathJax Code---------------------
 

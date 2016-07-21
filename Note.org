@@ -210,6 +210,12 @@ CLOSED: [2016-07-17 Sun 02:58]
 * 思路
 ** 从 org 导出的 html 也支持 MathJax(本地/远程)
 MathJax 在 Wiz 中的实现方法可以参考 Wiz.Editor.md 和 Notes.Markdown 等笔记编辑器。主要参考 MathJax 在 html 中需要加什么。
+
+- 之前一直认为为知会对所有文件进行 MathJax 渲染，现在发现是我的代码少注释一句话，导致这种现象出现的。 =eventsHtmlDocumentComplete.add(OM_onHtmlDocumentCompleted);= 这句话导致所有的文件都在打开时被动态加上了 MathJax.js ，导致如果原本没有 MathJax 渲染的就会自动被渲染，造成了我的错觉。（20160721）
+- 为知的文件的 html 中是不包含 MathJax 渲染的，在 PC 平台只有使用 F12 可以看到动态的 html，会发现为知对笔记进行了动态渲染，添加了 MathJax.js。可以想象在其他平台应该也实现了动态渲染的功能（但是我只做 PC 的插件，是没有办法直接做到全平台动态加载的）。
+- 发现为知把笔记中涉及的 js 文件都直接从网络上下载下来，放在笔记 ziw 压缩包目录下的 index_files 文件夹下面，方便在各平台都可以正常加载，使每一个 ziw 文件包含了所有笔记需要用到的文件（除了附件），也保证了各平台的兼容性。
+- 如果我想在我的插件中对 org 文件实现 MathJax 渲染的话，要考虑各平台的兼容性，也就是保证各平台都可以被正常渲染。但是我只能开发 PC 的插件，所以最好向 md 文件靠拢（还要思考到底该怎么实现。最好是向为知提建议，添加一个 flag 针对每个文档进行标记，这样可以在 PC 端添加修改是否使用 MathJax 的选项，从而实现在全平台渲染）。如果只考虑 PC 平台，不管其他平台是否使用 MathJax 渲染的话，可以直接使用动态渲染的方法，添加本地或者在线 MathJax.js 渲染文件。
+
 - 参考：[[http://app.wiz.cn/index.html?id=181][为知笔记应用中心－笔记编辑]]
 * MathJax 学习
 - MathJax 本地文件如果使用 =unpacked= 文件夹的部分，最终渲染出来是以字符形式显示。如果直接使用 MathJax 最外面的几个文件夹（ =config= ， =extensions= ， =fonts= ， =jax= ， =localization= ），最终渲染出来是以 Math 对象形式显示（ =fonts= 文件夹似乎可以不要）。
