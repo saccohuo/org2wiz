@@ -9,7 +9,11 @@ var omOptionFileName = org_mode_pluginPath + "options.ini";
 function InitOMButton(){
   // var languangeFileName = org_mode_pluginPath + "plugin.ini";
   objWindow.AddToolButton("document", "OMButton", "Org2Wiz", "", "OnOMButtonClicked");
-  objWindow.AddToolButton("document", "OMAttach", "AddAttach", "", "OnOMAttachClicked");
+
+  var omAttachmentsOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
+  if(parseInt(omAttachmentsOption,10)){
+    objWindow.AddToolButton("document", "OMAttach", "AddAttach", "", "OnOMAttachClicked");
+  }
 }
 
 
@@ -122,7 +126,7 @@ function OnOMButtonClicked(){
   // objCommon.RunExe("cmd ", "/c del /f /q \""+HtmlFile+"\"", true);
 
   // add default tag (now it is just one allowed)
-  if(omDefaultTag != ""){
+  if(omDefaultTag != "" && omDefaultTag != "noTag"){
     // var newTagObj = objDB.CreateRootTag(omDefaultTag, "");
     // objWindow.CurrentDocument.AddTag(newTagObj);
     
