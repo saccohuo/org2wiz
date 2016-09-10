@@ -1,7 +1,11 @@
 ﻿var objDB = objApp.Database;
 var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
-var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
+// var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
+var objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI"); // CreateWizObject 是内部对象，CreateActiveXObject 是外部对象
+// objWindow.ShowMessage(objCommon.toString(), "objCommon",0);
+// objCommon.OptionsDlg(0);
 var omOptionFileName = org_mode_pluginPath + "options.ini";
+// var omOptionFileName = org_mode_pluginPath.replace(/\\/g,'\\\\') + "options.ini";
 // objWindow.ShowMessage(omOptionFileName.toString(), "omOptionFileName",0);
 
 
@@ -30,6 +34,17 @@ function OnOMButtonClicked(){
   if(objWindow.CurrentDocument.AttachmentCount==0)
     return;
 
+  // objWindow.ShowMessage(omOptionFileName, "omOptionFileName",0);
+  // objWindow.ShowMessage(omMJOption, "testvar",0);
+
+  // objWindow.ShowMessage("testforini1", "testforini1",0);
+  
+  // var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
+  // objCommon.OptionsDlg(0);
+  // objWindow.ShowMessage(testforini, "testforini",0);
+  
+  // objWindow.ShowMessage(DefaultTag, "DefaultTag",0);
+  
   var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "MathJaxOption");
   // objWindow.ShowMessage(omMJOption, "omMJOption",0);
   var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
@@ -39,7 +54,7 @@ function OnOMButtonClicked(){
   // objWindow.ShowMessage(orgAttach, "Debug orgAttach",0);
 
   if(orgAttach == ".org"){
-    // objWindow.ShowMessage(orgAttach, "Debug orgAttach is empty",0);
+    objWindow.ShowMessage(orgAttach, "Debug orgAttach is empty",0);
     return;
   }
   // // 已经修改为找到 org 文件才可以，还需要修改来让插件自动找到合适的 org 附件，或者找到多个的情况提示选择

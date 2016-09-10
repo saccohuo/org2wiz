@@ -53,6 +53,18 @@ CLOSED: [2016-07-17 Sun 17:44]
 - 点击 org2wiz 按钮，弹出对话框，让用户输入文件名（判断是否需要自动添加 .org 后缀）
 - 判断用户输入的文件名是否为空，或者是否点了“取消”（其实这个时候提交的文件名也是空）
 - 根据用户设定的文件名新建 .org 文件，并添加到笔记的附件中
+** 调用 emacs 不显示命令行的黑框
+可以参考 [[https://github.com/CodeFalling/hexo-renderer-org][hexo-renderer-org]]。
+** org2wiz 可以在调用 emacs 时设置传递或者添加某些字串
+借鉴 hexo-renderer-org 中的 common 字段。也可以同时解决导出 html 时没调用 emacs 配置文件导致的一些问题，比如 emacs 中自己配置的三种标点符号的转义：
+#+BEGIN_SRC emacs-lisp
+(after-load 'org
+    ;; 只对某个标点禁止转义，只需要把下面这一行双引号中最后面的 \"', 这三个符号（其中双引号在配置中需要转义）中除了要禁止转义符号的其他符号加入到下面的下面那一行中
+    ;; (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n,\"'")
+    (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n")
+    (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+  )
+#+END_SRC
 * 插件已更新功能
 - 去除 markdown 相关功能以及 mdExport 按钮。
 - 允许 org 导入的 html 笔记中使用 js。
