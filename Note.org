@@ -123,6 +123,8 @@ CLOSED: [2016-09-18 Sun 19:03]
 - [[http://bits00.iteye.com/blog/1585651][在 CMD 创建文件 - bits00 - ITeye 技术网站]] 建立空文件的方法
 - [[http://bbs.csdn.net/topics/310146699][如何在 CMD 下更改文本文件的编码格式 - CSDN 论坛 - CSDN.NET - 中国最大的 IT 技术社区]]
 - [[http://www.programgo.com/article/60812731701/][Unicode 字符与 GB2312 的相互转换 - 软件开发程序员博客文章收藏网]]
+- [[http://zhidao.baidu.com/question/86371067.html][如何在 cmd 下建立文件夹、删除文件、重命名文件？_百度知道]]
+- [[http://www.jb51.net/article/18983.htm][cmd ren命令 重命名文件（夹）_DOS/BAT_脚本之家]]
 ** 其他
 推荐一个 org 导出 html 的好 css：[[https://github.com/thomasf/solarized-css][thomasf/solarized-css]]
 * 为知笔记插件开发学习
@@ -241,3 +243,4 @@ MathJax 在 Wiz 中的实现方法可以参考 Wiz.Editor.md 和 Notes.Markdown 
 - [[https://msdn.microsoft.com/en-us/goglobal/bb964664.aspx][Locale IDs Assigned by Microsoft]]
 - [[http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML][cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML]]
 - [[http://www.w3school.com.cn/js/index.asp][JavaScript 教程 - W3School]]
+- [[https://www.guidgen.com/][Generate GUIDs online]]
