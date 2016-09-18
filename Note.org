@@ -106,6 +106,23 @@ CLOSED: [2016-07-17 Sun 02:58]
 - State "DONE"       from "TODO"       [2016-07-17 Sun 02:58]
 :END:
 想添加标签还是比较简单的，但是只适合自己使用，不适合作为大众功能。需要添加一个选项可以设置相关选项才能给大家使用。
+** DONE 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件（完成）
+CLOSED: [2016-09-18 Sun 19:03]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2016-09-18 Sun 19:03]
+:END:
+- 设置好默认的文件编码格式（默认 UTF-8）或者自己提前准备好一个文件，到需要的时候复制过去然后改名。打算采用后一种方式。
+  - UTF-8
+  - UTF-8-DOS
+  - GBK
+- 判断后缀
+- 判断是否有 org 附件
+- 如何新建文件（如果无法新建，说明文件名不合适，或者权限问题）
+- 新建文件之后把该文件添加到 Document 的附件中（按照设置好的编码格式）
+- [[https://noelwei.wordpress.com/2011/04/11/%E6%80%8E%E4%B9%88%E6%A0%B7%E5%8F%AA%E7%94%A8%E6%89%B9%E5%A4%84%E7%90%86%E5%91%BD%E4%BB%A4%E5%B0%B1%E5%AE%9E%E7%8E%B0ansi-utf8%E7%9A%84%E4%BA%92%E6%8D%A2/][怎么样只用批处理命令就实现 ANSI-UTF8 的互换 | 人生の宝物を探しにいこう]] 这篇文章最有参考价值，关于编码转换
+- [[http://bits00.iteye.com/blog/1585651][在 CMD 创建文件 - bits00 - ITeye 技术网站]] 建立空文件的方法
+- [[http://bbs.csdn.net/topics/310146699][如何在 CMD 下更改文本文件的编码格式 - CSDN 论坛 - CSDN.NET - 中国最大的 IT 技术社区]]
+- [[http://www.programgo.com/article/60812731701/][Unicode 字符与 GB2312 的相互转换 - 软件开发程序员博客文章收藏网]]
 ** 其他
 推荐一个 org 导出 html 的好 css：[[https://github.com/thomasf/solarized-css][thomasf/solarized-css]]
 * 为知笔记插件开发学习

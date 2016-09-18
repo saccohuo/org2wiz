@@ -28,33 +28,39 @@ InitOMButton();
 //--------------- check attachment complete---------------
 
 function OnOMButtonClicked(){
+  //判断当前 Document 的后缀转换成纯小写是不是 .org
   if(MFGetFileExtension(objWindow.CurrentDocument.Title).toLowerCase() != '.org')
     return;
 
-  if(objWindow.CurrentDocument.AttachmentCount==0)
+  var omEncodingOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "OrgEncodingOption");
+  var templateFilename = "Default-UTF8.org";
+
+  if(parseInt(omEncodingOption,10) == 0){
+    templateFilename = "Default-UTF8.org";
+  }else if(parseInt(omEncodingOption,10) == 1){
+    templateFilename = "Default-UTF8-BOM.org";
+  }else if(parseInt(omEncodingOption,10) == 2){
+    templateFilename = "Default-GBK.org";
+  }else{
+    templateFilename = "Default-UTF8.org";
+  }
+
+  if(objWindow.CurrentDocument.AttachmentCount==0){
+    AddOrgAttach(objWindow.CurrentDocument,templateFilename);
     return;
+  }
+  else{
+  }
 
-  // objWindow.ShowMessage(omOptionFileName, "omOptionFileName",0);
-  // objWindow.ShowMessage(omMJOption, "testvar",0);
-
-  // objWindow.ShowMessage("testforini1", "testforini1",0);
-  
-  // var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
-  // objCommon.OptionsDlg(0);
-  // objWindow.ShowMessage(testforini, "testforini",0);
-  
-  // objWindow.ShowMessage(DefaultTag, "DefaultTag",0);
-  
-  var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "MathJaxOption");
-  // objWindow.ShowMessage(omMJOption, "omMJOption",0);
-  var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
 
 
   var orgAttach = GetOrg(objWindow.CurrentDocument) + ".org";
   // objWindow.ShowMessage(orgAttach, "Debug orgAttach",0);
 
+  // 如果找不到 org 附件，返回值是空的，orgAttach 就等于 ".org"
   if(orgAttach == ".org"){
-    objWindow.ShowMessage(orgAttach, "Debug orgAttach is empty",0);
+    AddOrgAttach(objWindow.CurrentDocument,templateFilename);
+    // objWindow.ShowMessage(orgAttach, "Debug orgAttach is empty",0);
     return;
   }
   // // 已经修改为找到 org 文件才可以，还需要修改来让插件自动找到合适的 org 附件，或者找到多个的情况提示选择
@@ -71,6 +77,21 @@ function OnOMButtonClicked(){
   //   objWindow.ShowMessage("There is no org file in this document!", "Warning",0);
   //   return;
   // }
+
+  // objWindow.ShowMessage(omOptionFileName, "omOptionFileName",0);
+  // objWindow.ShowMessage(omMJOption, "testvar",0);
+
+  // objWindow.ShowMessage("testforini1", "testforini1",0);
+
+  // var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
+  // objCommon.OptionsDlg(0);
+  // objWindow.ShowMessage(testforini, "testforini",0);
+
+  // objWindow.ShowMessage(DefaultTag, "DefaultTag",0);
+
+  var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "MathJaxOption");
+  // objWindow.ShowMessage(omMJOption, "omMJOption",0);
+  var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
 
   var offlineMJpath = org_mode_pluginPath.replace(/\\/g,'/') + "MathJax/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML";
   // objWindow.ShowMessage(offlineMJpath.toString(), "offlineMJpath",0);
@@ -196,8 +217,12 @@ function OnOMAttachClicked(){
   if(orgName != "" && omAttachmentsOption != 0){
     // objWindow.ShowMessage("testafter", "Debug",0);
     // objWindow.ShowMessage(orgName + ".tex", "Debug .tex",0);
-    var texFile = curDoc.AddAttachment(orgName + ".tex");
-    var pdfFile = curDoc.AddAttachment(orgName + ".pdf");
+    if(omAttachmentsOption == 1 || omAttachmentsOption == 2){
+      var texFile = curDoc.AddAttachment(orgName + ".tex");
+    }
+    if(omAttachmentsOption == 2){
+      var pdfFile = curDoc.AddAttachment(orgName + ".pdf");
+    }
   }
   else{
     return;
@@ -248,9 +273,46 @@ function GetOrg(curDoc){
     return OrgName;
   }
   else {
-    objWindow.ShowMessage("There is no org file in this document!", "Warning",0);
-    return;
+    // objWindow.ShowMessage("There is no org file in this document!", "Warning",0);
+    return "";
   }
+}
+
+//---------------------Add .org Attachment for new .org Document----------------
+function AddOrgAttach(curDoc,templateFilename){
+  var newomOrgAttach = objCommon.InputBox("org 文件名", "请输入需要添加的 org 附件的文件名（可包含或不包含 .org 后缀，但必须为 Windows 文件名允许的字符串）：", "default");
+  if(MFGetFileExtension(newomOrgAttach).toLowerCase() != '.org'){
+    newomOrgAttach = newomOrgAttach + ".org";
+  }
+  else{
+    newomOrgAttach = newomOrgAttach;
+  }
+
+  var templateFileRelativePath = "Templates/";
+  var TemplateFile = org_mode_pluginPath + templateFileRelativePath + templateFilename;
+  var attachPath;
+  var destinationFile;
+
+  // 确认该 Document 没有包含 org 附件
+  if(newomOrgAttach != "" && newomOrgAttach != ".org"){
+    // 先添加一个附件到 Document，防止没有创建附件文件夹
+    var localTemplateFileHdl = curDoc.AddAttachment(TemplateFile);
+    attachPath = curDoc.AttachmentsFilePath;
+    var localTemplateFile = attachPath + templateFilename;
+    destinationFile = attachPath + newomOrgAttach;
+    // 附件文件夹下，复制模板附件文件到org附件文件
+    objCommon.CopyFile(localTemplateFile,destinationFile);
+    // 重命名附件文件名
+    // objCommon.RunExe("cmd", "/c ren \"" + localTemplateFile + "\" \"" + newomOrgAttach + "\"", true);
+    //添加新附件
+    var localOrgFileHdl = curDoc.AddAttachment(destinationFile);
+    //删除原附件
+    localTemplateFileHdl.Delete();
+  }
+  else{
+    objWindow.ShowMessage("输入的文件名 "+ newomOrgAttach + "错误", "Error-org-attach-filename",0);
+  }
+  return;
 }
 
 
