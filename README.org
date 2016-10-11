@@ -70,6 +70,8 @@ CLOSED: [2016-09-18 Sun 19:02]
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2016-09-18 Sun 19:02]
 :END:
+** 自动把 org 文件中的 tag 添加到为知笔记中
+找到 tagcollection 对象，从 Document 删除所有 tag，然后从 org 中读取所有 tag（这一步不知道怎么实现，要参考 [[https://github.com/CodeFalling/hexo-renderer-org][hexo-renderer-org]]），加入到为知中。
 * 插件已更新功能
 - 去除 markdown 相关功能以及 mdExport 按钮。
 - 允许 org 导入的 html 笔记中使用 js。
