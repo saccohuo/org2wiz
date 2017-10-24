@@ -1,0 +1,10 @@
+* text eol=lf
+*.pdf binary
+*.doc binary
+# *.doc diff=word
+# *.pdf diff=pdf
+*.css -text
+*.js -text
+*.ini -text
+*.png binary
+*.exe binary
