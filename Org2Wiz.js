@@ -1,4 +1,4 @@
-var objDB = objApp.Database;
+﻿var objDB = objApp.Database;
 var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
 // var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
 var objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI"); // CreateWizObject 是内部对象，CreateActiveXObject 是外部对象
