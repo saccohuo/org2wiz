@@ -1,0 +1,1 @@
+otw_addMathjaxScriptToCurrentDocument();

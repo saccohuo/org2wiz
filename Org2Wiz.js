@@ -1,4 +1,4 @@
-﻿var objDB = objApp.Database;
+var objDB = objApp.Database;
 var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
 // var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
 var objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI"); // CreateWizObject 是内部对象，CreateActiveXObject 是外部对象
@@ -9,20 +9,9 @@ var omOptionFileName = org_mode_pluginPath + "options.ini";
 // objWindow.ShowMessage(omOptionFileName.toString(), "omOptionFileName",0);
 
 
-//-------------- Add Org2Wiz button and function OnOMButtonClicked-----------------------
-function InitOMButton(){
-  // var languangeFileName = org_mode_pluginPath + "plugin.ini";
-  objWindow.AddToolButton("document", "OMButton", "Org2Wiz", "", "OnOMButtonClicked");
-
-  var omAttachmentsOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
-  if(parseInt(omAttachmentsOption,10)){
-    objWindow.AddToolButton("document", "OMAttach", "AddAttach", "", "OnOMAttachClicked");
-  }
-}
-
-
 //-------------Init button complete-----------------------
 InitOMButton();
+
 
 
 //--------------- check attachment complete---------------
@@ -89,7 +78,9 @@ function OnOMButtonClicked(){
 
   // objWindow.ShowMessage(DefaultTag, "DefaultTag",0);
 
+  // 直接设置成online了，为了方便html文件在浏览器打开
   var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "MathJaxOption");
+  // var omMJOption = "online";
   // objWindow.ShowMessage(omMJOption, "omMJOption",0);
   var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
 
@@ -102,7 +93,8 @@ function OnOMButtonClicked(){
   // cmd 中对左右尖括号的转义用上三角 ^ ，而不是用反斜杠 \ 。问号在 cmd 中需要转义，在 shell 中不需要转义
   // 作为新手写这些真的好累。 What The Fuck String and Escape
   // strMJpath = "(setq org-html-mathjax-options '((path \"https://cdn.mathjax.org/mathjax/latest/MathJax.js\?config=TeX-AMS-MML_HTMLorMML\")(scale \"100\")(align \"center\")(indent \"2em\")(mathml nil)))(setq org-html-mathjax-template \"^<script type=\\\"text/javascript\\\" src=\\\"%PATH\\\"^>^</script^>\")";
-  var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
+  // var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
+  var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js\\?config=TeX-MML-AM_CHTML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
   var strOfflinePath = "(setq org-html-mathjax-options '((path \\\"" + offlineMJpath +  "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
   var strMJTpl = "(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
   var strNoMJTpl = "(setq org-html-mathjax-template \\\"\\\")";
@@ -153,7 +145,8 @@ function OnOMButtonClicked(){
   // nFlags 的值设置为 0x0006，表示“显示进度”和“包含 html 中的脚本”
   // 可以使用 UpdateDocument、UpdateDocument5 和 UpdateDocument6 来更新文档数据，但是更新的时候资源管理器不要打开为知的 temp 文件夹
 
-  objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0006);
+  objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0004); // 不包含脚本，只显示进度
+  // objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0006); //包含脚本，显示进度
   // objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0000);
   // objWindow.CurrentDocument.UpdateDocument6(HtmlFile, HtmlFile, 0x0006);
   // objWindow.CurrentDocument.UpdateDocument5(HtmlFile);
@@ -200,6 +193,18 @@ function OnOMButtonClicked(){
     // objWindow.ShowMessage(allTagsName, "Tags",0);
   }
 
+  otw_MarkAsMathjax();
+}
+
+//-------------- Add Org2Wiz button and function OnOMButtonClicked-----------------------
+function InitOMButton(){
+  // var languangeFileName = org_mode_pluginPath + "plugin.ini";
+  objWindow.AddToolButton("document", "OMButton", "Org2Wiz", "", "OnOMButtonClicked");
+
+  var omAttachmentsOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
+  if(parseInt(omAttachmentsOption,10)){
+    objWindow.AddToolButton("document", "OMAttach", "AddAttach", "", "OnOMAttachClicked");
+  }
 }
 
 function OnOMAttachClicked(){
@@ -230,24 +235,7 @@ function OnOMAttachClicked(){
 }
 
 //---------------------------------------------------------------
-// eventsHtmlDocumentComplete.add(OnOrgHtmlDocumentComplete);
 
-function OnOrgHtmlDocumentComplete(doc){
-    var file_ext = MFGetFileExtension(objWindow.CurrentDocument.Title).toLowerCase();
-
-    if(objCommon.GetValueFromIni(org_mode_pluginPath + "plugin.ini", "Plugin_0", "EnableMathJax") == '1' &&
-       (file_ext == '.org')){
-      // 这个地方似乎一直没调用，因为没看到有js被添加到html文件中
-      // OM_addMathjaxScript(doc);
-
-      // 如果是用的 IE，直接进行处理，如果不是的话，在 500ms 之后进行处理。处理方法： MFInitMathJax(doc)
-      // setTimeout(code,millisec) 方法用于在指定的毫秒数后调用函数或计算表达式。
-      // if(MFIsIE())
-      //   MFInitMathJax(doc);
-      // else
-      //   setTimeout(function(){MFInitMathJax(doc);},4000);
-    }
-}
 
 
 //---------------------Get org file from the document attachments-------------
@@ -316,60 +304,125 @@ function AddOrgAttach(curDoc,templateFilename){
 }
 
 
-//--------------------------------Wiz Official MathJax Code---------------------
-function OM_addMathjaxScript(doc) {
-  if (!doc){
-    objWindow.ShowMessage("Html Object doc is empty", "Error",0);
-    return;
+//-------------------Add Mathjax to Document-----------------------
+//-----------------------------------------------------------------
+function otw_MarkAsMathjax(){
+  // var objWindow = objApp.Window;
+  var objDocument = objWindow.CurrentDocument;
+  // alert("test1");
+  if (objDocument) {
+    objDocument.Type = "Mathjax";
+    // alert("objDocument.Type");
+    // alert(objDocument.Type);
+    objApp.AddGlobalScript(objApp.CurPluginAppPath + "MathjaxCurrentDocument.js");
+    // alert(objApp.CurPluginAppPath);
   }
-  // objWindow.ShowMessage(doc.scripts.item(0).text, "handle of doc",0);
-  // objWindow.ShowMessage(doc.scripts.item(1).text, "handle of doc",0);
-  // objWindow.ShowMessage(doc.scripts.item(2).text, "handle of doc",0);
-  // objWindow.ShowMessage(doc.scripts.item(3).text, "handle of doc",0);
-  // objWindow.ShowMessage(doc.scripts.item(4).text, "handle of doc",0);
-  
-  
-  
-  
-  var elem = doc.createElement("script");
-  elem.src = "http://cdn.mathjax.org/mathjax/latest/MathJax.js\?config=TeX-AMS-MML_HTMLorMML";
-  doc.body.appendChild(elem);
-  objWindow.CurrentDocument.UpdateDocument2(doc, 0x0006);
 }
 
-function OM_addMathjaxScriptToCurrentDocument() {
-  var doc = objWindow.CurrentDocumentHtmlDocument;
-  
-  if(!doc){
-    //   objWindow.ViewHtml("file:////D:/MyDocuments/My Knowledge/Data/shuaike945@gmail.com/Test/orgmodemathjaxtest.org_Attachments/blank.html", false);
-    objWindow.ShowMessage("Object doc is empty", "Error",0);
-   }
-  OM_addMathjaxScript(doc);
+function insertScript(){
+  var elem = document.createElement("script");
+  elem.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+  document.head.appendChild(elem);
 }
 
-function OM_onHtmlDocumentCompleted(doc) {
+// 还需要解决 html 带脚本update的情况，不带脚本的情况可以直接用 insertScript
+// 想要带脚本的情况，最好加个 Tools 来设置 UpdateDocument 时的 flag 参数
+function replaceScript(){
+  var new_elem = document.createElement("script");
+  new_elem.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+
+  var src_list = document.querySelectorAll("script");
+  // var src_list = document.getElementsByTagName("script");
+  var div_list = document.querySelectorAll("div#MathJax_Message");
+  for(var i=0;i<src_list.length;i++){
+    var src_str = src_list[i].getAttribute("src");
+    var text_str = src_list[i].textContent;
+    // alert("src_str");
+    // alert(src_str);
+    var str_match_cdn = (src_str!=null) ? src_str.match(/^index_files\/MathJax_\d+\.js$/) : null;
+    var str_match_hub = (text_str!=null) ? text_str.match(/MathJax\.Hub\.Config/) : null;
+    // alert(str_match_head);
+    // alert(str_match_body);
+    // alert("str_match");
+    // alert(str_match);
+    // if(str_match_cdn!=null || str_match_hub!=null){
+    if(str_match_cdn!=null){
+      alert("src_str");
+      alert(src_str);
+      alert("str_match");
+      alert(str_match_cdn);
+      // document.head.replaceChild(new_elem,src_list[i]);
+      document.head.removeChild(src_list[i]);
+      // src_list[i].src=new_elem.src;
+      // alert(src_list[i].getAttribute("src"));
+      // return 1;
+    }
+  }
+
+  // if(div_list!=null)
+  //   document.body.removeChild(div_list[0]);
+
+  document.body.appendChild(new_elem);
+  // return 1;
+}
+
+
+function otw_addMathjaxScript() {
+  // if (!doc)
+  //   return;
+
+  // alert("document");
+  // alert(document);
+  // var elem = document.createElement("script");
+  // elem.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+  // alert("elem");
+  // alert(elem);
+  // org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
+  // var scriptfile=org_mode_pluginPath+"docsrc.js";
+  var doc = objApp.Window.CurrentDocumentBrowserObject;
+  // alert("docbroswer");
+  // alert(doc);
+
+  // alert("insertscript");
+  doc.ExecuteScript(insertScript.toString(),function(){
+    // doc.ExecuteFunction0("replaceScript", function(ret){
+    //   alert(ret);
+    // });
+    doc.ExecuteFunction0("insertScript", null);
+  });
+
+  // alert("afterscript");
+}
+
+function otw_addMathjaxScriptToCurrentDocument() {
+  // alert("doc1");
+  otw_addMathjaxScript();
+}
+
+function otw_onHtmlDocumentCompleted(doc) {
+  // alert("update1");
+
   try {
-    // 获得的 doc 是一个 WizDocument 对象，而不是 IHTMLDocument2 对象，而要进行 element_add script 必须得是 html 对象
-    var objDocument = objWindow.CurrentDocument;
-    var exdoc = objWindow.CurrentDocumentHtmlDocument;
+    var objDocument = objApp.Window.CurrentDocument;
+    // alert(objDocument);
+
     if (objDocument) {
-      // objWindow.ShowMessage("Wiz Object doc is not empty", "Normal",0);
-      // objWindow.ShowMessage(exdoc.body.toString(), "handle of doc",0);
-      OM_addMathjaxScript(exdoc);
+      if (objDocument.Type == "Mathjax") {
+        // alert(objDocument.Type);
+        otw_addMathjaxScript();
+      }
     }
   }
   catch (err) {
   }
 }
 
-// eventsHtmlDocumentComplete.add(OM_onHtmlDocumentCompleted);
-
-//-----------------------------End Wiz Official MathJax Code---------------------
-
 
 
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
+//下面的函数我不知道是干嘛的，也不知道哪里来的
+
 //--------------------------------------------
 // 这个地方似乎没有考虑没有后缀名的文件
 function MFGetFileExtension(Fstr){
