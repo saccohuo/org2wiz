@@ -23,8 +23,12 @@ strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-htm
 感谢好心人 [[http://bbs.wiz.cn/space-uid-26363.html][@yangguang760]] 给出了解决方案。
 * 想法
 下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
-** TODO 从 org 导出的 html 也支持 MathJax(本地/远程) （完成60%）
+** TODO 从 org 导出的 html 也支持 MathJax(本地/远程) （完成99%）
 类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。插件介绍说本身已经支持本地 MathJax 解析功能，但是我按照介绍的方法生成的 html 没有被渲染。可以选择调用本地的 MathJax 还是远程的 MathJax。
+
+不再考虑使用本地的 Mathjax，现改为两个选项：org 导出 html时使用/不使用在线 Mathjax。如果使用在线Mathjax，可以方便后续直接查看导出的 html文件。
+
+笔记中无论何时都要加载在线 Mathjax（如果文中有LaTeX公式的话）。
 ** TODO 自动识别附件中需要导出的那个 org 文件 （完成 50%）
 附件中有时候不会只放置所需的 org 文件，有时候会加入一些其他附件，这个时候附件的自动排序会导致插件的导入 org 功能失效。此时必须手动修改 org 文件名，很不方便，也不智能。
 
@@ -70,14 +74,13 @@ CLOSED: [2016-09-18 Sun 19:02]
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2016-09-18 Sun 19:02]
 :END:
-** 自动把 org 文件中的 tag 添加到为知笔记中
+** TODO 自动把 org 文件中的 tag 添加到为知笔记中
 找到 tagcollection 对象，从 Document 删除所有 tag，然后从 org 中读取所有 tag（这一步不知道怎么实现，要参考 [[https://github.com/CodeFalling/hexo-renderer-org][hexo-renderer-org]]），加入到为知中。
 * 插件已更新功能
 - 去除 markdown 相关功能以及 mdExport 按钮。
-- 允许 org 导入的 html 笔记中使用 js。
 - 自动找到附件中的 org 文件，不需要一定在附件的第一位。
 - org 生成 html 更新到笔记中之后，不再删除生成的 html 文件。
-- 可以选择不在 html 中加入 MathJax 的部分，这样为知会自动调用 MathJax 进行渲染。
+- MathJax 渲染。
 - 进行 Org2Wiz 转换时，自动添加一个默认标签到文档（转换之后需要切换到其他文档，再切换回来才能看到新添加的标签）。
 - 一键把与 org 同名的tex 文件（或者 tex 文件与 pdf 文件）作为附件到文档（需要在工具里面设置“附件选项”值为“1”或 “2”，才会显示“AddAttach”按钮，点击该按钮可实现一键添加附件）。
 - 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件，需提前设置好编码方式：UTF8(默认)，UTF8-BOM，GBK。
