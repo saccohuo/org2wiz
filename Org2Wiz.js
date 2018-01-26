@@ -145,7 +145,39 @@ function OnOMButtonClicked(){
   // nFlags 的值设置为 0x0006，表示“显示进度”和“包含 html 中的脚本”
   // 可以使用 UpdateDocument、UpdateDocument5 和 UpdateDocument6 来更新文档数据，但是更新的时候资源管理器不要打开为知的 temp 文件夹
 
-  objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0004); // 不包含脚本，只显示进度
+  var otw_ScriptOption = 0x0006;
+  if((otw_ScriptOption & 0x0002)!=0){
+    // alert(otw_ScriptOption);
+    var doc = objApp.Window.CurrentDocumentBrowserObject;
+    // alert(typeof doc);
+    var html_str = objCommon.LoadTextFromFile(HtmlFile);
+    // alert(html_str);
+    var html_str_new = html_str;
+    try{
+      doc.ExecuteScript(otw_removeScript.toString(),function(){
+        doc.ExecuteFunction1("otw_removeScript", html_str,function(ret){
+          if(ret!=null){
+            html_str_new = ret;
+            objCommon.SaveTextToFile(HtmlFile.concat(".txt"),html_str_new,"utf-8-bom");
+          }
+          else{
+            objCommon.SaveTextToFile(HtmlFile.concat(".txt"),"function \"otw_removeScript\" return value is null.","utf-8-bom");
+          }
+          objWindow.CurrentDocument.UpdateDocument3(html_str_new, otw_ScriptOption); // 包含脚本，显示进度
+        });
+      });
+    }
+    catch(err){
+      alert(err.message);
+    }
+
+    // otw_removeScript(HtmlFile);
+  }
+  else
+    objWindow.CurrentDocument.UpdateDocument(HtmlFile, otw_ScriptOption); // 不包含脚本，只显示进度
+
+  //objWindow.CurrentDocument.UpdateDocument(HtmlFile, otw_ScriptOption); // 不包含脚本，只显示进度
+
   // objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0006); //包含脚本，显示进度
   // objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0000);
   // objWindow.CurrentDocument.UpdateDocument6(HtmlFile, HtmlFile, 0x0006);
@@ -322,9 +354,92 @@ function otw_MarkAsMathjax(){
 function insertScript(){
   var elem = document.createElement("script");
   elem.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+  // document.head.appendChild(elem);
   document.head.appendChild(elem);
 }
 
+function insertBeforeScript(){
+  var elem = document.createElement("script");
+  elem.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+
+  var src_list = document.querySelectorAll("script");
+  // var src_list = document.getElementsByTagName("script");
+  var div_list = document.querySelectorAll("div#MathJax_Message");
+  for(var i=0;i<src_list.length;i++){
+    var src_str = src_list[i].getAttribute("src");
+    // alert("src_str");
+    // alert(src_str);
+    var str_match_cdn = (src_str!=null) ? src_str.match(/^index_files\/MathJax_\d+\.js$/) : null;
+    // alert("str_match_cdn");
+    // alert(str_match_cdn);
+    // if(str_match_cdn!=null || str_match_hub!=null){
+    if(str_match_cdn!=null){
+      alert("src_str");
+      alert(src_str);
+      alert("str_match_cdn");
+      alert(str_match_cdn);
+      document.head.insertBefore(elem,src_list[i]);
+      return 1;
+    }
+  }
+  return null;
+}
+
+function otw_removeScript(html_str){
+  // alert("otw_removeScript");
+  var div = document.createElement("div");
+  if(typeof html_str == "string")
+    div.innerHTML = html_str;
+  // return div.childNodes;
+  // alert(div.innerHTML);
+  var src_list = div.querySelectorAll("script[src]");
+  // alert(div);
+  // alert(src_list);
+  // alert(src_list.length);
+  // alert(src_list[0]);
+  // var src_list = div.childNodes.querySelectorAll("script[src]");
+  for(var i=0;i<src_list.length;i++){
+    // alert(src_list.length);
+    var src_str = src_list[i].getAttribute("src");
+    // alert("src_str");
+    // alert(src_str);
+    RegExp.escape= function(s) {
+      return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    };
+    // src_str = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+    var str_match_cdn = (src_str!=null) ? src_str.match(RegExp.escape("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML")) : null;
+    // var str_match_cdn = (src_str!=null) ? src_str.match(/https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/mathjax\/2\.7\.2\/MathJax\.js\?config=TeX\-MML\-AM_CHTML/i) : null;
+    // if(str_match_cdn!=null || str_match_hub!=null){
+    // alert("str_match_cdn");
+    // alert(str_match_cdn);
+    if(str_match_cdn!=null){
+      // alert("str_match_cdn");
+      // alert(str_match_cdn);
+      var tmp = document.createElement("div");
+      tmp.appendChild(src_list[i]);
+      // alert("tmp.innerHTML");
+      // alert(typeof tmp.innerHTML);
+      // alert(tmp.innerHTML);
+      // alert(html_str.match(RegExp.escape(tmp.innerHTML)));
+      var html_re = new RegExp(RegExp.escape(tmp.innerHTML),"gi");
+      // var html_re = new RegExp(RegExp.escape(tmp.innerHTML),"g");
+      // alert(html_re);
+      html_str = html_str.replace(html_re,"");
+      // html_str.replace(RegExp.escape(tmp.innerHTML),'');
+      // html_str.replace(tmp.innerHTML,"");
+      // alert("after replace");
+      // alert(html_str.match(RegExp.escape(tmp.innerHTML)));
+      return html_str;
+      // document.head.replaceChild(new_elem,src_list[i]);
+      // document.head.removeChild(src_list[i]);
+      // src_list[i].src=new_elem.src;
+      // alert(src_list[i].getAttribute("src"));
+      // return 1;
+    }
+  }
+  // return null; //here null should be returned after debugging
+  return html_str;
+}
 // 还需要解决 html 带脚本update的情况，不带脚本的情况可以直接用 insertScript
 // 想要带脚本的情况，最好加个 Tools 来设置 UpdateDocument 时的 flag 参数
 function replaceScript(){
@@ -385,11 +500,11 @@ function otw_addMathjaxScript() {
 
   // alert("insertscript");
   doc.ExecuteScript(insertScript.toString(),function(){
-    // doc.ExecuteFunction0("replaceScript", function(ret){
-    //   alert(ret);
-    // });
     doc.ExecuteFunction0("insertScript", null);
   });
+  // doc.ExecuteScript(insertBeforeScript.toString(),function(){
+  //   doc.ExecuteFunction0("insertBeforeScript", null);
+  // });
 
   // alert("afterscript");
 }

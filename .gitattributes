@@ -6,5 +6,6 @@
 *.css -text
 *.js -text
 *.ini -text
+*.org -text
 *.png binary
 *.exe binary
