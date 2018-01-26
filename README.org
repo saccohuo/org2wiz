@@ -23,7 +23,11 @@ strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-htm
 感谢好心人 [[http://bbs.wiz.cn/space-uid-26363.html][@yangguang760]] 给出了解决方案。
 * 想法
 下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
-** TODO 从 org 导出的 html 也支持 MathJax(本地/远程) （完成99%）
+** DONE 从 org 导出的 html 也支持 MathJax(本地/远程) （完成）
+CLOSED: [2018-01-27 Sat 02:30]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2018-01-27 Sat 02:30]
+:END:
 类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。插件介绍说本身已经支持本地 MathJax 解析功能，但是我按照介绍的方法生成的 html 没有被渲染。可以选择调用本地的 MathJax 还是远程的 MathJax。
 
 不再考虑使用本地的 Mathjax，现改为两个选项：org 导出 html时使用/不使用在线 Mathjax。如果使用在线Mathjax，可以方便后续直接查看导出的 html文件。
