@@ -12,5 +12,6 @@ var newomEncodingOption = objCommon.GetIntValue2("Org编码选项", "值为0，�
 // objWindow.ShowMessage(newomEncodingOption.toString(), "omOptionFileName",0);
 // objWindow.ShowMessage(typeof newomEncodingOption, "omOptionFType",0);
 if(newomEncodingOption == 0 || newomEncodingOption == 1 || newomEncodingOption == 2){
+// if((tempConfirm == true) && (newomEncodingOption == 0 || newomEncodingOption == 1 || newomEncodingOption == 2)){
   objCommon.SetValueToIni(omOptionFileName, "Options", "OrgEncodingOption", newomEncodingOption);
 }

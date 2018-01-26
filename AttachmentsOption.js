@@ -12,5 +12,6 @@ var newomAttachmentsOption = objCommon.GetIntValue2("附件选项", "值为0，�
 // objWindow.ShowMessage(newomAttachmentsOption.toString(), "omOptionFileName",0);
 // objWindow.ShowMessage(typeof newomAttachmentsOption, "omOptionFType",0);
 if(newomAttachmentsOption == 0 || newomAttachmentsOption == 1 || newomAttachmentsOption == 2){
+// if((tempConfirm == true) && (newomAttachmentsOption == 0 || newomAttachmentsOption == 1 || newomAttachmentsOption == 2)){
   objCommon.SetValueToIni(omOptionFileName, "Options", "AttachmentsOption", newomAttachmentsOption);
 }

@@ -8,11 +8,10 @@ var omOptionFileName = org_mode_pluginPath + "options.ini";
 // var omOptionFileName = org_mode_pluginPath.replace(/\\/g,'\\\\') + "options.ini";
 // objWindow.ShowMessage(omOptionFileName.toString(), "omOptionFileName",0);
 
+var MathjaxUrl = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
 
 //-------------Init button complete-----------------------
 InitOMButton();
-
-
 
 //--------------- check attachment complete---------------
 
@@ -24,11 +23,12 @@ function OnOMButtonClicked(){
   var omEncodingOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "OrgEncodingOption");
   var templateFilename = "Default-UTF8.org";
 
-  if(parseInt(omEncodingOption,10) == 0){
+  var omEncOpt = parseInt(omEncodingOption,10);
+  if(omEncOpt == 0){
     templateFilename = "Default-UTF8.org";
-  }else if(parseInt(omEncodingOption,10) == 1){
+  }else if(omEncOpt == 1){
     templateFilename = "Default-UTF8-BOM.org";
-  }else if(parseInt(omEncodingOption,10) == 2){
+  }else if(omEncOpt == 2){
     templateFilename = "Default-GBK.org";
   }else{
     templateFilename = "Default-UTF8.org";
@@ -79,7 +79,7 @@ function OnOMButtonClicked(){
   // objWindow.ShowMessage(DefaultTag, "DefaultTag",0);
 
   // 直接设置成online了，为了方便html文件在浏览器打开
-  var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "MathJaxOption");
+  var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "ScriptOption");
   // var omMJOption = "online";
   // objWindow.ShowMessage(omMJOption, "omMJOption",0);
   var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
@@ -94,7 +94,15 @@ function OnOMButtonClicked(){
   // 作为新手写这些真的好累。 What The Fuck String and Escape
   // strMJpath = "(setq org-html-mathjax-options '((path \"https://cdn.mathjax.org/mathjax/latest/MathJax.js\?config=TeX-AMS-MML_HTMLorMML\")(scale \"100\")(align \"center\")(indent \"2em\")(mathml nil)))(setq org-html-mathjax-template \"^<script type=\\\"text/javascript\\\" src=\\\"%PATH\\\"^>^</script^>\")";
   // var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
-  var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js\\?config=TeX-MML-AM_CHTML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
+  RegExp.emacsescape= function(s) {
+    return s.replace(/\-?/g, '\\\\$&');
+  };
+  var MathjaxUrlEmacs = RegExp.emacsescape(MathjaxUrl);
+  // alert(MathjaxUrlEmacs);
+  var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"" + MathjaxUrlEmacs + "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
+  // "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js\\?config=TeX-MML-AM_CHTML"
+  // alert(MathjaxUrl);
+  // alert(strOnlinePath);
   var strOfflinePath = "(setq org-html-mathjax-options '((path \\\"" + offlineMJpath +  "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
   var strMJTpl = "(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
   var strNoMJTpl = "(setq org-html-mathjax-template \\\"\\\")";
@@ -109,21 +117,8 @@ function OnOMButtonClicked(){
   // strOfflineMJ = "(setq org-html-mathjax-options '((path \\\"" + offlineMJpath +  "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
 
   
-  // objWindow.ShowMessage(omMJOption, "Debug omMJOption",0);
-
-  if(omMJOption.toLowerCase() == "no"){
-    strMJSetting = strNoMJ;
-  }
-  else if(omMJOption.toLowerCase() == "online"){
-    strMJSetting = strOnlineMJ;
-  }
-  else if(omMJOption.toLowerCase() == "offline"){
-    strMJSetting = strOfflineMJ;
-  }
-  else{
-    strMJSetting = strNoMJ;
-  }
-
+  strMJSetting = strOnlineMJ;
+  
   var strCmd = "emacs.exe";
   var strParam = " --batch -q --no-site-file --visit \"" + orgAttach + "\" --eval=\"" + strMJSetting + "\" --funcall org-html-export-to-html";
   // objWindow.ShowMessage(strParam, "strParam",0);
@@ -146,6 +141,14 @@ function OnOMButtonClicked(){
   // 可以使用 UpdateDocument、UpdateDocument5 和 UpdateDocument6 来更新文档数据，但是更新的时候资源管理器不要打开为知的 temp 文件夹
 
   var otw_ScriptOption = 0x0006;
+  
+  var omMJOpt = parseInt(omMJOption,10);
+  if(omMJOpt == 0){
+    otw_ScriptOption = 0x0004;
+  }else{
+    otw_ScriptOption = 0x0006;
+  }
+  
   if((otw_ScriptOption & 0x0002)!=0){
     // alert(otw_ScriptOption);
     var doc = objApp.Window.CurrentDocumentBrowserObject;
@@ -155,7 +158,7 @@ function OnOMButtonClicked(){
     var html_str_new = html_str;
     try{
       doc.ExecuteScript(otw_removeScript.toString(),function(){
-        doc.ExecuteFunction1("otw_removeScript", html_str,function(ret){
+        doc.ExecuteFunction2("otw_removeScript", html_str, MathjaxUrl, function(ret){
           if(ret!=null){
             html_str_new = ret;
             objCommon.SaveTextToFile(HtmlFile.concat(".txt"),html_str_new,"utf-8-bom");
@@ -234,7 +237,8 @@ function InitOMButton(){
   objWindow.AddToolButton("document", "OMButton", "Org2Wiz", "", "OnOMButtonClicked");
 
   var omAttachmentsOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
-  if(parseInt(omAttachmentsOption,10)){
+  var omAttachOpt = parseInt(omAttachmentsOption,10);
+  if(omAttachOpt != 0){
     objWindow.AddToolButton("document", "OMAttach", "AddAttach", "", "OnOMAttachClicked");
   }
 }
@@ -251,13 +255,14 @@ function OnOMAttachClicked(){
   // objWindow.ShowMessage(orgName, "Debug orgName",0);
   // objWindow.ShowMessage(omAttachmentsOption.toString(), "Debug omAttachmentsoption",0);
 
-  if(orgName != "" && omAttachmentsOption != 0){
+  var omAttachOpt = parseInt(omAttachmentsOption,10);
+  if(orgName != "" && omAttachOpt != 0){
     // objWindow.ShowMessage("testafter", "Debug",0);
     // objWindow.ShowMessage(orgName + ".tex", "Debug .tex",0);
-    if(omAttachmentsOption == 1 || omAttachmentsOption == 2){
+    if(omAttachOpt == 1 || omAttachOpt == 2){
       var texFile = curDoc.AddAttachment(orgName + ".tex");
     }
-    if(omAttachmentsOption == 2){
+    if(omAttachOpt == 2){
       var pdfFile = curDoc.AddAttachment(orgName + ".pdf");
     }
   }
@@ -351,16 +356,16 @@ function otw_MarkAsMathjax(){
   }
 }
 
-function insertScript(){
+function insertScript(mj_url){
   var elem = document.createElement("script");
-  elem.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+  elem.src = mj_url;
   // document.head.appendChild(elem);
   document.head.appendChild(elem);
 }
 
-function insertBeforeScript(){
+function insertBeforeScript(mj_url){
   var elem = document.createElement("script");
-  elem.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+  elem.src = mj_url;
 
   var src_list = document.querySelectorAll("script");
   // var src_list = document.getElementsByTagName("script");
@@ -385,7 +390,7 @@ function insertBeforeScript(){
   return null;
 }
 
-function otw_removeScript(html_str){
+function otw_removeScript(html_str,mj_url){
   // alert("otw_removeScript");
   var div = document.createElement("div");
   if(typeof html_str == "string")
@@ -406,9 +411,7 @@ function otw_removeScript(html_str){
     RegExp.escape= function(s) {
       return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     };
-    // src_str = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
-    var str_match_cdn = (src_str!=null) ? src_str.match(RegExp.escape("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML")) : null;
-    // var str_match_cdn = (src_str!=null) ? src_str.match(/https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/mathjax\/2\.7\.2\/MathJax\.js\?config=TeX\-MML\-AM_CHTML/i) : null;
+    var str_match_cdn = (src_str!=null) ? src_str.match(RegExp.escape(mj_url)) : null;
     // if(str_match_cdn!=null || str_match_hub!=null){
     // alert("str_match_cdn");
     // alert(str_match_cdn);
@@ -442,9 +445,9 @@ function otw_removeScript(html_str){
 }
 // 还需要解决 html 带脚本update的情况，不带脚本的情况可以直接用 insertScript
 // 想要带脚本的情况，最好加个 Tools 来设置 UpdateDocument 时的 flag 参数
-function replaceScript(){
+function replaceScript(mj_url){
   var new_elem = document.createElement("script");
-  new_elem.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+  new_elem.src = mj_url;
 
   var src_list = document.querySelectorAll("script");
   // var src_list = document.getElementsByTagName("script");
@@ -483,27 +486,16 @@ function replaceScript(){
 
 
 function otw_addMathjaxScript() {
-  // if (!doc)
-  //   return;
-
-  // alert("document");
-  // alert(document);
-  // var elem = document.createElement("script");
-  // elem.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
-  // alert("elem");
-  // alert(elem);
-  // org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
-  // var scriptfile=org_mode_pluginPath+"docsrc.js";
   var doc = objApp.Window.CurrentDocumentBrowserObject;
   // alert("docbroswer");
   // alert(doc);
 
   // alert("insertscript");
   doc.ExecuteScript(insertScript.toString(),function(){
-    doc.ExecuteFunction0("insertScript", null);
+    doc.ExecuteFunction1("insertScript", MathjaxUrl, null);
   });
   // doc.ExecuteScript(insertBeforeScript.toString(),function(){
-  //   doc.ExecuteFunction0("insertBeforeScript", null);
+  //   doc.ExecuteFunction0("insertBeforeScript", MathjaxUrl, null);
   // });
 
   // alert("afterscript");
@@ -547,110 +539,110 @@ function MFGetFileExtension(Fstr){
   else
     return Fstr.substr(pos);
 }
-function MFIsIE(){
-  if(navigator.userAgent.indexOf("MSIE")>0)
-    return true;
-  else
-    return false;
-}
-function MFins_elem(doc, part, elem_type, callbackfunc){
-  var oPart = doc.getElementsByTagName(part).item(0); 
-  var oElem = doc.createElement(elem_type); 
-  callbackfunc(oElem);
-  //oHead.appendChild(oElem); 
-  oPart.insertBefore(oElem,null); //because IE bug, use insertBefore;
-  return oElem;
-}
+// function MFIsIE(){
+//   if(navigator.userAgent.indexOf("MSIE")>0)
+//     return true;
+//   else
+//     return false;
+// }
+// function MFins_elem(doc, part, elem_type, callbackfunc){
+//   var oPart = doc.getElementsByTagName(part).item(0); 
+//   var oElem = doc.createElement(elem_type); 
+//   callbackfunc(oElem);
+//   //oHead.appendChild(oElem); 
+//   oPart.insertBefore(oElem,null); //because IE bug, use insertBefore;
+//   return oElem;
+// }
 
-function MFAppendScriptSrc(doc, part, script_type, str){
+// function MFAppendScriptSrc(doc, part, script_type, str){
 
-  MFins_elem(doc, part, "script", function(oScript) {
-                                  oScript.type = script_type; 
-                                  oScript.defer = true;
-                                  oScript.src = ("file:///" +  str).replace(/\\/g,'/'); 
-                                  }
-  );
-}
+//   MFins_elem(doc, part, "script", function(oScript) {
+//                                   oScript.type = script_type; 
+//                                   oScript.defer = true;
+//                                   oScript.src = ("file:///" +  str).replace(/\\/g,'/'); 
+//                                   }
+//   );
+// }
 
-function MFAppendCssSrc(doc, str){
-  MFins_elem(doc, 'HEAD', "link", function(oCss) {
-                                  oCss.rel = "stylesheet"; 
-                                  oCss.href = ("file:///" +  str).replace(/\\/g,'/'); 
-                                  }
-  );
-}
+// function MFAppendCssSrc(doc, str){
+//   MFins_elem(doc, 'HEAD', "link", function(oCss) {
+//                                   oCss.rel = "stylesheet"; 
+//                                   oCss.href = ("file:///" +  str).replace(/\\/g,'/'); 
+//                                   }
+//   );
+// }
 
-function MFAppendInnerHtml_IE6(doc, part, innerHtmlStr){
-  MFins_elem(doc, part, "div",  function(oDiv) {
-                                oDiv.id= "TmpIdForAppendScriptInnerHtml1";
-                                oDiv.innerHTML =  "<input type=\"hidden\" id=TmpIdForAppendScriptInnerHtml2>"+innerHtmlStr; 
-                                }
-  );
-  var oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml1');
-  oElem.removeNode(false);
-  oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml2');
-  oElem.removeNode(true);
-}
+// function MFAppendInnerHtml_IE6(doc, part, innerHtmlStr){
+//   MFins_elem(doc, part, "div",  function(oDiv) {
+//                                 oDiv.id= "TmpIdForAppendScriptInnerHtml1";
+//                                 oDiv.innerHTML =  "<input type=\"hidden\" id=TmpIdForAppendScriptInnerHtml2>"+innerHtmlStr; 
+//                                 }
+//   );
+//   var oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml1');
+//   oElem.removeNode(false);
+//   oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml2');
+//   oElem.removeNode(true);
+// }
 
-function MFAppendInnerHtml_IE6WithW3CAPI(doc, part, innerHtmlStr)
-{ //The implementation seems strange, because it need to compatible with IE6 and above and wibkit
-  MFins_elem(doc, part, "div",  function(oDiv) {
-                                oDiv.id= "TmpIdForAppendScriptInnerHtml1";
-                                oDiv.innerHTML =  "<input type=\"hidden\" id=TmpIdForAppendScriptInnerHtml2>"+innerHtmlStr; 
-                                }
-  );
-  var oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml1');
-  while(oElem.firstChild)  {
-    oElem.parentNode.insertBefore(oElem.firstChild,oElem);  
-  }
-  oElem.parentNode.removeChild(oElem);//oElem.removeNode(false);
-  oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml2');
-  oElem.parentNode.removeChild(oElem);//oElem.removeNode(true);
-}
+// function MFAppendInnerHtml_IE6WithW3CAPI(doc, part, innerHtmlStr)
+// { //The implementation seems strange, because it need to compatible with IE6 and above and wibkit
+//   MFins_elem(doc, part, "div",  function(oDiv) {
+//                                 oDiv.id= "TmpIdForAppendScriptInnerHtml1";
+//                                 oDiv.innerHTML =  "<input type=\"hidden\" id=TmpIdForAppendScriptInnerHtml2>"+innerHtmlStr; 
+//                                 }
+//   );
+//   var oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml1');
+//   while(oElem.firstChild)  {
+//     oElem.parentNode.insertBefore(oElem.firstChild,oElem);  
+//   }
+//   oElem.parentNode.removeChild(oElem);//oElem.removeNode(false);
+//   oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml2');
+//   oElem.parentNode.removeChild(oElem);//oElem.removeNode(true);
+// }
 
-function MFAppendStyleInnerHtml(doc, str){
-  try{
-    MFins_elem(doc, 'HEAD', "style", function(oCss) {
-                                    oCss.type = "text/css"; 
-                                    oCss.innerHTML = str; 
-                                    }
-    );
-  }catch(ex){
-    MFAppendInnerHtml_IE6(doc, 'head', '<style type="text/css">'+str+'</style>');
-  }
-}
+// function MFAppendStyleInnerHtml(doc, str){
+//   try{
+//     MFins_elem(doc, 'HEAD', "style", function(oCss) {
+//                                     oCss.type = "text/css"; 
+//                                     oCss.innerHTML = str; 
+//                                     }
+//     );
+//   }catch(ex){
+//     MFAppendInnerHtml_IE6(doc, 'head', '<style type="text/css">'+str+'</style>');
+//   }
+// }
 
-function MFAppendScriptInnerHtml(doc, part, script_type,innerHtmlStr)
-{ 
-  try{
-    MFins_elem(doc, part, "script", function(oCss) {
-                                    oCss.type = script_type; 
-                                    oCss.innerHTML = innerHtmlStr; 
-                                    }
-    );
-  }catch(ex){
-    MFAppendInnerHtml_IE6(doc, part, "<script defer=\"true\" type=\"" + script_type + "\">" + innerHtmlStr + "</scr" + "ipt>");
-  }
-}
+// function MFAppendScriptInnerHtml(doc, part, script_type,innerHtmlStr)
+// { 
+//   try{
+//     MFins_elem(doc, part, "script", function(oCss) {
+//                                     oCss.type = script_type; 
+//                                     oCss.innerHTML = innerHtmlStr; 
+//                                     }
+//     );
+//   }catch(ex){
+//     MFAppendInnerHtml_IE6(doc, part, "<script defer=\"true\" type=\"" + script_type + "\">" + innerHtmlStr + "</scr" + "ipt>");
+//   }
+// }
 
-//----------------------------------------------------------------------
-function MFAppendMathJaxConfig(doc){
-  var innerHtmlStr = "MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']]}}); \
-                      MathJax.Hub.Config({tex2jax: {displayMath: [ ['$$','$$'], [\"\\\\[\",\"\\\\]\"], [\"\\\\begin{displaymath}\",\"\\\\end{displaymath}\"] ]}});\
-                      MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: \"all\", useLabelIds: true} } });  \
-                      MathJax.Hub.Config({ TeX: { extensions: [\"cancel.js\"] } });\
-                     "; 
-  MFAppendScriptInnerHtml(doc, 'BODY', "text/x-mathjax-config", innerHtmlStr);
-}
+// //----------------------------------------------------------------------
+// function MFAppendMathJaxConfig(doc){
+//   var innerHtmlStr = "MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']]}}); \
+//                       MathJax.Hub.Config({tex2jax: {displayMath: [ ['$$','$$'], [\"\\\\[\",\"\\\\]\"], [\"\\\\begin{displaymath}\",\"\\\\end{displaymath}\"] ]}});\
+//                       MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: \"all\", useLabelIds: true} } });  \
+//                       MathJax.Hub.Config({ TeX: { extensions: [\"cancel.js\"] } });\
+//                      "; 
+//   MFAppendScriptInnerHtml(doc, 'BODY', "text/x-mathjax-config", innerHtmlStr);
+// }
 
-function MFInitMathJax(doc){
-  //http://docs.mathjax.org/en/v1.1-latest/configuration.html
-  MFAppendMathJaxConfig(doc); // A simple MathJax configuration for test 
+// function MFInitMathJax(doc){
+//   //http://docs.mathjax.org/en/v1.1-latest/configuration.html
+//   MFAppendMathJaxConfig(doc); // A simple MathJax configuration for test 
   
-  //the 1st method to load mathjax, can speed up the processing
-  //AppendScriptSrc('HEAD', "text/javascript", "MathJax\\MathJax.js?config=Accessible&delayStartupUntil=configured");
-  //AppendScriptInnerHtml('BODY', "text/javascript", "MathJax.Hub.Configured();");
+//   //the 1st method to load mathjax, can speed up the processing
+//   //AppendScriptSrc('HEAD', "text/javascript", "MathJax\\MathJax.js?config=Accessible&delayStartupUntil=configured");
+//   //AppendScriptInnerHtml('BODY', "text/javascript", "MathJax.Hub.Configured();");
   
-  //the 2nd method
-  MFAppendScriptSrc(doc, 'BODY', "text/javascript", org_mode_pluginPath+"MathJax\\MathJax.js?config=Accessible");
-}
+//   //the 2nd method
+//   MFAppendScriptSrc(doc, 'BODY', "text/javascript", org_mode_pluginPath+"MathJax\\MathJax.js?config=Accessible");
+// }
