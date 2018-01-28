@@ -54,7 +54,11 @@ CLOSED: [2016-07-17 Sun 17:44]
 - State "DONE"       from "TODO"       [2016-07-17 Sun 17:44]
 :END:
 如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
-** TODO 对于后缀名为 .org 且附件中没有 .org 后缀名的文件的笔记，点击 org2wiz 按钮可以自动添加一个空白的 .org 文件（最好可以弹出对话框，来设定 org 文件名）
+** DONE 对于后缀名为 .org 且附件中没有 .org 后缀名的文件的笔记，点击 org2wiz 按钮可以弹出对话框设置文件名，然后自动添加一个空白的 .org 文件（完成）
+CLOSED: [2018-01-27 Sat 14:30]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2018-01-27 Sat 14:30]
+:END:
 - 这里其实复用了 org2wiz 按钮的功能：如果附件中无 org 文件，自动添加 org 文件（用户设定文件名）；如果附件中有 org 文件，把 org 文件导入到笔记中
 - 判断笔记后缀名是否为 .org
 - 判断附件中是否有 .org 文件
@@ -85,10 +89,12 @@ CLOSED: [2016-09-18 Sun 19:02]
 - 自动找到附件中的 org 文件，不需要一定在附件的第一位。
 - org 生成 html 更新到笔记中之后，不再删除生成的 html 文件。
 - MathJax 渲染。
-- 进行 Org2Wiz 转换时，自动添加一个默认标签到文档（转换之后需要切换到其他文档，再切换回来才能看到新添加的标签）。
+- 进行 Org2Wiz 转换时，自动添加默认标签到文档，支持多标签。
 - 一键把与 org 同名的tex 文件（或者 tex 文件与 pdf 文件）作为附件到文档（需要在工具里面设置“附件选项”值为“1”或 “2”，才会显示“AddAttach”按钮，点击该按钮可实现一键添加附件）。
 - 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件，需提前设置好编码方式：UTF8(默认)，UTF8-BOM，GBK。
 * 参考
+- [[http://www.wiz.cn/manual/plugin/][为知笔记 Windows 插件开发文档]]
+- [[https://www.wiz.cn/category/tech/dev][为知笔记 4.5 Windows 开发文档]]
 - [[http://app.wiz.cn/index.html?id=181][org-mode插件 - 为知笔记应用中心]]
 - [[http://bbs.wiz.cn/thread-17135-1-3.html][Emacs Org-Mode 插件 - 为知笔记 (Wiz)Windows 客户端帮助区 - 为知笔记 (WizNote) 帮助中心 - Powered by Discuz!]]
 - [[http://bbs.wiz.cn/forum.php?mod=redirect&goto=findpost&ptid=17135&pid=109573][解决方案－为知笔记论坛]]

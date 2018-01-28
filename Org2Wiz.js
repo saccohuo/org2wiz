@@ -4,7 +4,10 @@ var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
 var objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI"); // CreateWizObject 是内部对象，CreateActiveXObject 是外部对象
 // objWindow.ShowMessage(objCommon.toString(), "objCommon",0);
 // objCommon.OptionsDlg(0);
-var omOptionFileName = org_mode_pluginPath + "options.ini";
+var CustomOptionFile = "custom.ini";
+var OptionFile = "options.ini";
+var CurOptionFile = (objCommon.PathFileExists(org_mode_pluginPath + CustomOptionFile)) ? CustomOptionFile : OptionFile;
+var omOptionFileName = org_mode_pluginPath + CurOptionFile;
 // var omOptionFileName = org_mode_pluginPath.replace(/\\/g,'\\\\') + "options.ini";
 // objWindow.ShowMessage(omOptionFileName.toString(), "omOptionFileName",0);
 
@@ -16,6 +19,7 @@ InitOMButton();
 //--------------- check attachment complete---------------
 
 function OnOMButtonClicked(){
+  var objDocument = objWindow.CurrentDocument;
   //判断当前 Document 的后缀转换成纯小写是不是 .org
   if(MFGetFileExtension(objWindow.CurrentDocument.Title).toLowerCase() != '.org')
     return;
@@ -189,45 +193,12 @@ function OnOMButtonClicked(){
   // 注释掉下面这句话，让为知在生成 html 加入到文档中之后不再删除 html 文件
   // objCommon.RunExe("cmd ", "/c del /f /q \""+HtmlFile+"\"", true);
 
-  // add default tag (now it is just one allowed)
+  // add default tag
   if(omDefaultTag != "" && omDefaultTag != "noTag"){
-    // var newTagObj = objDB.CreateRootTag(omDefaultTag, "");
-    // objWindow.CurrentDocument.AddTag(newTagObj);
-    
-    var allTags = objDB.Tags;
-    // 现在我还不会用这个 enum 的对象，如果会用的话应该更简单，不需要 for循环
-    var allTagsEnum = allTags._NewEnum;
-    var sameTagFlag = 0;
-    var sameTagObj = 0;
-    // objWindow.ShowMessage(sameTagFlag.toString(), "sameTagFlag",0);
-
-    // testFunc(allTags);
-    // allTagsEnum.foreach(testFunc);
-
-    //function testFunc(tagCollection){
-      for(var i=0; i<allTags.Count; i++){
-        if(allTags.Item(i).Name == omDefaultTag){
-          sameTagFlag = 1;
-          sameTagObj = allTags.Item(i);
-          break;
-        }
-      }
-    // }
-    
-    // objWindow.ShowMessage(sameTagFlag.toString(), "sameTagFlag",0);
-
-    if(sameTagFlag != 0){
-      objWindow.CurrentDocument.AddTag(sameTagObj);
-    }
-    else{
-      var newTagObj = objDB.CreateRootTag(omDefaultTag, "");
-      objWindow.CurrentDocument.AddTag(newTagObj);
-    }
-    // 另一种方法是获取所有标签名字，然后用正则找出在两个分号之间是否有与默认标签相同的字符串
-    // var allTagsName = objDB.GetAllTagsName();
-    // objWindow.ShowMessage(allTagsName, "Tags",0);
+    otw_addTags(objDocument,omDefaultTag);
   }
 
+  // mark this doc to be rendered with Mathjax in future
   otw_MarkAsMathjax();
 }
 
@@ -272,7 +243,39 @@ function OnOMAttachClicked(){
 }
 
 //---------------------------------------------------------------
-
+function otw_addTags(curdoc, tags){
+  var TagsArray = tags.split(';');
+  // for(var i=0;i<TagsArray.length;i++){
+  //   TagsArray[i] = TagsArray[i].trim();
+  // }
+  TagsArray = TagsArray.map(el => el.trim()); // for ES2015
+  // TagsArray = TagsArray.map(function (el) {
+  //   return el.trim();
+  // });
+  // DocTags = DocTags.map(function (el) {
+  //   return el.trim();
+  // });
+  // DocTags = DocTags.map(el => el.trim()); // for ES2015
+  var DocTags = curdoc.TagsText;
+  alert(DocTags);
+  var DocTagsNew = DocTags;
+  if(DocTags != ""){
+    var DocTagsArray = DocTags.split(';');
+    DocTagsArray = DocTagsArray.map(el => el.trim()); // for ES2015
+    // for(var i=0;i<DocTagsArray.length;i++){
+    //   DocTagsArray[i] = DocTagsArray[i].trim();
+    // }
+    for(var i=0;i<TagsArray.length;i++){
+      var TagExist = DocTagsArray.findIndex(function(element){
+        return element===TagsArray[i];
+      });
+      if(TagExist == -1){
+        DocTagsNew += ';' + TagsArray[i];
+      }
+    }
+  }
+  curdoc.TagsText = DocTagsNew;
+}
 
 
 //---------------------Get org file from the document attachments-------------

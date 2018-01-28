@@ -2,9 +2,11 @@
 var objWindow = objApp.Window;
 var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
 var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
-var omOptionFileName = org_mode_pluginPath + "options.ini";
+var CustomOptionFile = "custom.ini";
+var OptionFile = "options.ini";
+var CurOptionFile = (objCommon.PathFileExists(org_mode_pluginPath + CustomOptionFile)) ? CustomOptionFile : OptionFile;
+var omOptionFileName = org_mode_pluginPath + CurOptionFile;
 var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "ScriptOption");
-// objWindow.ShowMessage(omOptionFileName.toString(), "omOptionFileName",0);
 var tempConfirm = 0;
 
 var newomMJOption = objCommon.GetIntValue2("笔记是否保留脚本", "0 不保留\n1 保留", parseInt(omMJOption,10), 0, 1, tempConfirm);

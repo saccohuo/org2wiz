@@ -4,4 +4,4 @@
 *.wizplugin
 npm-debug.log
 *.bkp
-customoptions.ini
+custom.ini
