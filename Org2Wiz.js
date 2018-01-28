@@ -24,15 +24,14 @@ function OnOMButtonClicked(){
   if(MFGetFileExtension(objWindow.CurrentDocument.Title).toLowerCase() != '.org')
     return;
 
-  var omEncodingOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "OrgEncodingOption");
+  var omEncodingOption = otw_getEncodingOption();
   var templateFilename = "Default-UTF8.org";
 
-  var omEncOpt = parseInt(omEncodingOption,10);
-  if(omEncOpt == 0){
+  if(omEncodingOption === 'utf8'){
     templateFilename = "Default-UTF8.org";
-  }else if(omEncOpt == 1){
+  }else if(omEncodingOption === 'utf8bom'){
     templateFilename = "Default-UTF8-BOM.org";
-  }else if(omEncOpt == 2){
+  }else if(omEncodingOption === 'gbk'){
     templateFilename = "Default-GBK.org";
   }else{
     templateFilename = "Default-UTF8.org";
@@ -42,51 +41,20 @@ function OnOMButtonClicked(){
     AddOrgAttach(objWindow.CurrentDocument,templateFilename);
     return;
   }
-  else{
-  }
-
 
 
   var orgAttach = GetOrg(objWindow.CurrentDocument) + ".org";
   // objWindow.ShowMessage(orgAttach, "Debug orgAttach",0);
 
   // 如果找不到 org 附件，返回值是空的，orgAttach 就等于 ".org"
-  if(orgAttach == ".org"){
+  if(orgAttach === ".org"){
     AddOrgAttach(objWindow.CurrentDocument,templateFilename);
     // objWindow.ShowMessage(orgAttach, "Debug orgAttach is empty",0);
     return;
   }
-  // // 已经修改为找到 org 文件才可以，还需要修改来让插件自动找到合适的 org 附件，或者找到多个的情况提示选择
-  // var AttachCount = objWindow.CurrentDocument.Attachments.Count;
-  // var OrgFile = 0;
-  // // 此处还可以使用 _NewEnum 然后使用 for_each 结构
-  // for (var AttachNum = 0; AttachNum < AttachCount; AttachNum++ ) {
-  //   OrgFile =  objWindow.CurrentDocument.Attachments.Item(AttachNum).FileName;
-  //   if(MFGetFileExtension(OrgFile).toLowerCase() == '.org')
-  //     break;
-  // }
-
-  // if(MFGetFileExtension(OrgFile).toLowerCase() != '.org'){
-  //   objWindow.ShowMessage("There is no org file in this document!", "Warning",0);
-  //   return;
-  // }
-
-  // objWindow.ShowMessage(omOptionFileName, "omOptionFileName",0);
-  // objWindow.ShowMessage(omMJOption, "testvar",0);
-
-  // objWindow.ShowMessage("testforini1", "testforini1",0);
-
-  // var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
-  // objCommon.OptionsDlg(0);
-  // objWindow.ShowMessage(testforini, "testforini",0);
-
-  // objWindow.ShowMessage(DefaultTag, "DefaultTag",0);
 
   // 直接设置成online了，为了方便html文件在浏览器打开
-  var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "ScriptOption");
-  // var omMJOption = "online";
-  // objWindow.ShowMessage(omMJOption, "omMJOption",0);
-  var omDefaultTag = objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag");
+  var omMJOption = otw_getScriptOption();
 
   var offlineMJpath = org_mode_pluginPath.replace(/\\/g,'/') + "MathJax/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML";
   // objWindow.ShowMessage(offlineMJpath.toString(), "offlineMJpath",0);
@@ -146,11 +114,12 @@ function OnOMButtonClicked(){
 
   var otw_ScriptOption = 0x0006;
   
-  var omMJOpt = parseInt(omMJOption,10);
-  if(omMJOpt == 0){
+  if(omMJOption === 'no'){
     otw_ScriptOption = 0x0004;
-  }else{
+  }else if(omMJOption === 'yes'){
     otw_ScriptOption = 0x0006;
+  }else{
+    otw_ScriptOption = 0x0004;
   }
   
   if((otw_ScriptOption & 0x0002)!=0){
@@ -193,8 +162,10 @@ function OnOMButtonClicked(){
   // 注释掉下面这句话，让为知在生成 html 加入到文档中之后不再删除 html 文件
   // objCommon.RunExe("cmd ", "/c del /f /q \""+HtmlFile+"\"", true);
 
+  var omDefaultTag = otw_getDefaultTag();
+  // alert(omDefaultTag);
   // add default tag
-  if(omDefaultTag != "" && omDefaultTag != "noTag"){
+  if(omDefaultTag !== "" && omDefaultTag !== "noTag"){
     otw_addTags(objDocument,omDefaultTag);
   }
 
@@ -207,15 +178,14 @@ function InitOMButton(){
   // var languangeFileName = org_mode_pluginPath + "plugin.ini";
   objWindow.AddToolButton("document", "OMButton", "Org2Wiz", "", "OnOMButtonClicked");
 
-  var omAttachmentsOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
-  var omAttachOpt = parseInt(omAttachmentsOption,10);
-  if(omAttachOpt != 0){
+  var omAttachmentsOption = otw_getAttachOption();
+  if((omAttachmentsOption === 'addtex') || (omAttachmentsOption === 'addpdf') || (omAttachmentsOption === 'addtexpdf')){
     objWindow.AddToolButton("document", "OMAttach", "AddAttach", "", "OnOMAttachClicked");
   }
 }
 
 function OnOMAttachClicked(){
-  var omAttachmentsOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
+  var omAttachmentsOption = otw_getAttachOption();
   
   var curDoc = objWindow.CurrentDocument;
   if(curDoc.AttachmentCount==0)
@@ -226,55 +196,87 @@ function OnOMAttachClicked(){
   // objWindow.ShowMessage(orgName, "Debug orgName",0);
   // objWindow.ShowMessage(omAttachmentsOption.toString(), "Debug omAttachmentsoption",0);
 
-  var omAttachOpt = parseInt(omAttachmentsOption,10);
-  if(orgName != "" && omAttachOpt != 0){
+  if(orgName !== ""){
     // objWindow.ShowMessage("testafter", "Debug",0);
     // objWindow.ShowMessage(orgName + ".tex", "Debug .tex",0);
-    if(omAttachOpt == 1 || omAttachOpt == 2){
+    if((omAttachmentsOption === 'addtex') || (omAttachmentsOption == 'addtexpdf')){
       var texFile = curDoc.AddAttachment(orgName + ".tex");
     }
-    if(omAttachOpt == 2){
+    if((omAttachmentsOption === 'addpdf') || (omAttachmentsOption == 'addtexpdf')){
       var pdfFile = curDoc.AddAttachment(orgName + ".pdf");
     }
   }
-  else{
-    return;
+
+  return null;
+}
+
+//---------------------- get all options ------------------------
+//---------------------------------------------------------------
+function otw_getDefaultTag(){
+  return otw_stringTrim(objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag"));
+}
+
+function otw_getAttachOption(){
+  return objCommon.GetValueFromIni(omOptionFileName, "Options", "ScriptOption");
+  
+}
+
+function otw_getEncodingOption(){
+  return objCommon.GetValueFromIni(omOptionFileName, "Options", "OrgEncodingOption");
+  
+}
+
+function otw_getScriptOption(){
+  return objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
+  
+}
+
+function otw_stringTrim(str){
+  if(typeof str === 'string'){
+    var strArray = str.split(';');
+    strArray = strArray.filter(el => el.trim() != ''); // for ES2015
+    strArray = Array.from(new Set(strArray));  //remove duplicate elements
+    str = strArray.join(';');
+    return str;
   }
+  return '';
+}
+
+function otw_stringTrimArray(str){
+  if(typeof str === 'string'){
+    var strArray = str.split(';');
+    strArray = strArray.filter(el => el.trim() != ''); // for ES2015
+    strArray = Array.from(new Set(strArray));  //remove duplicate elements
+    return strArray;
+  }
+  return [];
 }
 
 //---------------------------------------------------------------
 function otw_addTags(curdoc, tags){
-  var TagsArray = tags.split(';');
-  // for(var i=0;i<TagsArray.length;i++){
-  //   TagsArray[i] = TagsArray[i].trim();
-  // }
-  TagsArray = TagsArray.map(el => el.trim()); // for ES2015
-  // TagsArray = TagsArray.map(function (el) {
-  //   return el.trim();
-  // });
-  // DocTags = DocTags.map(function (el) {
-  //   return el.trim();
-  // });
-  // DocTags = DocTags.map(el => el.trim()); // for ES2015
-  var DocTags = curdoc.TagsText;
-  alert(DocTags);
-  var DocTagsNew = DocTags;
-  if(DocTags != ""){
-    var DocTagsArray = DocTags.split(';');
-    DocTagsArray = DocTagsArray.map(el => el.trim()); // for ES2015
-    // for(var i=0;i<DocTagsArray.length;i++){
-    //   DocTagsArray[i] = DocTagsArray[i].trim();
-    // }
-    for(var i=0;i<TagsArray.length;i++){
-      var TagExist = DocTagsArray.findIndex(function(element){
-        return element===TagsArray[i];
-      });
-      if(TagExist == -1){
-        DocTagsNew += ';' + TagsArray[i];
-      }
-    }
-  }
+  var DocTags = otw_stringTrim(curdoc.TagsText);
+  tags = otw_stringTrim(tags);
+  var DocTagsNew = otw_stringTrim(DocTags + ';' + tags); // concat, trim and remove duplicate items
   curdoc.TagsText = DocTagsNew;
+  
+  // var TagsArray = otw_stringTrimArray(tags);
+  // var DocTags = curdoc.TagsText;
+  // alert("DocTags");
+  // alert(DocTags);
+  // // alert(DocTags);
+  // var DocTagsNew = DocTags;
+  // var DocTagsArray = otw_stringTrimArray(DocTags);
+  // for(var i=0;i<TagsArray.length;i++){
+  //   var TagExist = DocTagsArray.findIndex(function(element){
+  //     return element===TagsArray[i];
+  //   });
+  //   if(TagExist == -1){
+  //     DocTagsNew += ';' + TagsArray[i];
+  //   }
+  // }
+  // curdoc.TagsText = DocTagsNew;
+  // alert("DocTagsNew");
+  // alert(DocTagsNew);
 }
 
 
