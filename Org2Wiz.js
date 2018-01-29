@@ -1,4 +1,6 @@
-﻿var objDB = objApp.Database;
+﻿// import {read_info} from 'read-info';
+var objDB = objApp.Database;
+// objApp.CurPluginAppPath
 var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
 // var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
 var objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI"); // CreateWizObject 是内部对象，CreateActiveXObject 是外部对象
@@ -42,7 +44,6 @@ function OnOMButtonClicked(){
     return;
   }
 
-
   var orgAttach = GetOrg(objWindow.CurrentDocument) + ".org";
   // objWindow.ShowMessage(orgAttach, "Debug orgAttach",0);
 
@@ -53,11 +54,11 @@ function OnOMButtonClicked(){
     return;
   }
 
-  // 直接设置成online了，为了方便html文件在浏览器打开
-  var omMJOption = otw_getScriptOption();
+  //-----------------------------------------------------------------------------------------------
+  //export org to html with emacs
+  //-----------------------------------------------------------------------------------------------
 
   var offlineMJpath = org_mode_pluginPath.replace(/\\/g,'/') + "MathJax/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML";
-  // objWindow.ShowMessage(offlineMJpath.toString(), "offlineMJpath",0);
 
   // emacs --batch -q --no-site-file --visit "test.org" --eval="(setq org-html-mathjax-template \"\")(setq org-html-mathjax-options '((path \"https://cdn.mathjax.org/mathjax/latest/MathJax.js\?config=TeX-AMS-MML_HTMLorMML\")(scale \"100\")(align \"center\")(indent \"2em\")(mathml nil)))" --funcall org-html-export-to-html
   // 终于解决了 emacs -q 生成 html 时候 MathJax 的 Online 路径替换问题。还需要解决生成的 html 被导入到为知的文档中时替换为本地临时路径的问题
@@ -70,11 +71,8 @@ function OnOMButtonClicked(){
     return s.replace(/\-?/g, '\\\\$&');
   };
   var MathjaxUrlEmacs = RegExp.emacsescape(MathjaxUrl);
-  // alert(MathjaxUrlEmacs);
   var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"" + MathjaxUrlEmacs + "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
   // "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js\\?config=TeX-MML-AM_CHTML"
-  // alert(MathjaxUrl);
-  // alert(strOnlinePath);
   var strOfflinePath = "(setq org-html-mathjax-options '((path \\\"" + offlineMJpath +  "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
   var strMJTpl = "(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
   var strNoMJTpl = "(setq org-html-mathjax-template \\\"\\\")";
@@ -102,18 +100,22 @@ function OnOMButtonClicked(){
   if(!objCommon.PathFileExists(HtmlFile))
     return;
 
+
+  //-----------------------------------------------------------------------------------------------
+  // update html into Wiznote note(remove online Mathjax first)
+  //-----------------------------------------------------------------------------------------------
+  
   // objWindow 的对象类型就是为知笔记主窗口对象 (IWizExplorerWindow)
   // objWindow.CurrentDocument 的对象类型是 WizDocument
   // 获得/设置文档的类型，例如document，note，journal，contact等等
-  // 为什么设置为 wholewebpage？没找到介绍有这个类型的位置
-  // objWindow.CurrentDocument.Type = "wholewebpage";
 
   // 更改文档数据，通过一个HTML文件名和对应的URL来更新。
   // nFlags 的值设置为 0x0006，表示“显示进度”和“包含 html 中的脚本”
   // 可以使用 UpdateDocument、UpdateDocument5 和 UpdateDocument6 来更新文档数据，但是更新的时候资源管理器不要打开为知的 temp 文件夹
 
+  var omMJOption = otw_getScriptOption();
   var otw_ScriptOption = 0x0006;
-  
+
   if(omMJOption === 'no'){
     otw_ScriptOption = 0x0004;
   }else if(omMJOption === 'yes'){
@@ -146,13 +148,9 @@ function OnOMButtonClicked(){
     catch(err){
       alert(err.message);
     }
-
-    // otw_removeScript(HtmlFile);
   }
   else
     objWindow.CurrentDocument.UpdateDocument(HtmlFile, otw_ScriptOption); // 不包含脚本，只显示进度
-
-  //objWindow.CurrentDocument.UpdateDocument(HtmlFile, otw_ScriptOption); // 不包含脚本，只显示进度
 
   // objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0006); //包含脚本，显示进度
   // objWindow.CurrentDocument.UpdateDocument(HtmlFile, 0x0000);
@@ -162,15 +160,40 @@ function OnOMButtonClicked(){
   // 注释掉下面这句话，让为知在生成 html 加入到文档中之后不再删除 html 文件
   // objCommon.RunExe("cmd ", "/c del /f /q \""+HtmlFile+"\"", true);
 
-  var omDefaultTag = otw_getDefaultTag();
-  // alert(omDefaultTag);
-  // add default tag
-  if(omDefaultTag !== "" && omDefaultTag !== "noTag"){
-    otw_addTags(objDocument,omDefaultTag);
-  }
 
+  //-----------------------------------------------------------------------------------------------
+  // add default tag into note
+  //-----------------------------------------------------------------------------------------------
+  // objApp.AddGlobalScript(org_mode_pluginPath + "lib/read-info.js");
+  // objApp.RunScriptFile(org_mode_pluginPath + "lib/read-info.js", 'javascript');
+  var omDefaultTag = otw_getDefaultTag();
+  var data = new Object();
+  data.source = orgAttach;
+  data.content = objCommon.LoadTextFromFile(data.source);
+  data.tags = '';
+  data.setTags = function(tagsStr){
+    this.tags = otw_stringTrim(tagsStr, ',', ';');
+  };
+
+  data = read_info(data);
+  
+  // alert(data.tags[0]);
+  objDocument.TagsText = data.tags;
+
+
+  // if(omDefaultTag !== "" && omDefaultTag !== "noTag"){
+  //   otw_addTags(objDocument,omDefaultTag);
+  // }
+
+  //-----------------------------------------------------------------------------------------------
   // mark this doc to be rendered with Mathjax in future
+  //-----------------------------------------------------------------------------------------------
   otw_MarkAsMathjax();
+
+  //-----------------------------------------------------------------------------------------------
+  // copy establish time of note into clipboard
+  //-----------------------------------------------------------------------------------------------
+
 }
 
 //-------------- Add Org2Wiz button and function OnOMButtonClicked-----------------------
@@ -213,7 +236,7 @@ function OnOMAttachClicked(){
 //---------------------- get all options ------------------------
 //---------------------------------------------------------------
 function otw_getDefaultTag(){
-  return otw_stringTrim(objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag"));
+  return otw_stringTrim(objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag"), ';', ';');
 }
 
 function otw_getAttachOption(){
@@ -231,20 +254,20 @@ function otw_getScriptOption(){
   
 }
 
-function otw_stringTrim(str){
+function otw_stringTrim(str, dlmt_in, dlmt_out){
   if(typeof str === 'string'){
-    var strArray = str.split(';');
+    var strArray = str.split(dlmt_in);
     strArray = strArray.filter(el => el.trim() != ''); // for ES2015
     strArray = Array.from(new Set(strArray));  //remove duplicate elements
-    str = strArray.join(';');
+    str = strArray.join(dlmt_out);
     return str;
   }
   return '';
 }
 
-function otw_stringTrimArray(str){
+function otw_stringTrimArray(str, dlmt_in){
   if(typeof str === 'string'){
-    var strArray = str.split(';');
+    var strArray = str.split(dlmt_in);
     strArray = strArray.filter(el => el.trim() != ''); // for ES2015
     strArray = Array.from(new Set(strArray));  //remove duplicate elements
     return strArray;
@@ -254,29 +277,10 @@ function otw_stringTrimArray(str){
 
 //---------------------------------------------------------------
 function otw_addTags(curdoc, tags){
-  var DocTags = otw_stringTrim(curdoc.TagsText);
-  tags = otw_stringTrim(tags);
-  var DocTagsNew = otw_stringTrim(DocTags + ';' + tags); // concat, trim and remove duplicate items
+  var DocTags = otw_stringTrim(curdoc.TagsText, ';', ';');
+  tags = otw_stringTrim(tags, ';', ';');
+  var DocTagsNew = otw_stringTrim(DocTags + ';' + tags, ';', ';'); // concat, trim and remove duplicate items
   curdoc.TagsText = DocTagsNew;
-  
-  // var TagsArray = otw_stringTrimArray(tags);
-  // var DocTags = curdoc.TagsText;
-  // alert("DocTags");
-  // alert(DocTags);
-  // // alert(DocTags);
-  // var DocTagsNew = DocTags;
-  // var DocTagsArray = otw_stringTrimArray(DocTags);
-  // for(var i=0;i<TagsArray.length;i++){
-  //   var TagExist = DocTagsArray.findIndex(function(element){
-  //     return element===TagsArray[i];
-  //   });
-  //   if(TagExist == -1){
-  //     DocTagsNew += ';' + TagsArray[i];
-  //   }
-  // }
-  // curdoc.TagsText = DocTagsNew;
-  // alert("DocTagsNew");
-  // alert(DocTagsNew);
 }
 
 
@@ -356,7 +360,8 @@ function otw_MarkAsMathjax(){
     objDocument.Type = "Mathjax";
     // alert("objDocument.Type");
     // alert(objDocument.Type);
-    objApp.AddGlobalScript(objApp.CurPluginAppPath + "MathjaxCurrentDocument.js");
+    objApp.AddGlobalScript(org_mode_pluginPath + "MathjaxCurrentDocument.js");
+    // objApp.AddGlobalScript(objApp.CurPluginAppPath + "MathjaxCurrentDocument.js");
     // alert(objApp.CurPluginAppPath);
   }
 }
@@ -651,3 +656,88 @@ function MFGetFileExtension(Fstr){
 //   //the 2nd method
 //   MFAppendScriptSrc(doc, 'BODY', "text/javascript", org_mode_pluginPath+"MathJax\\MathJax.js?config=Accessible");
 // }
+
+
+
+//-----------------------------------------------
+// read info from org file
+//-----------------------------------------------
+function read_info(data) {
+  var _items = {};
+  read_in();
+  read_all();
+  return data;
+
+  function split2(str, delim) {
+    var parts = str.split(delim);
+    return [parts[0], parts.splice(1, parts.length).join(delim)];
+  }
+
+  function read_in() {
+    var r = data.content.match(/#\+[a-zA-Z]*:.*\n/g);
+    if (r) {
+      for (var i = 0; i < r.length; i++) {
+        var parts = split2(r[i], ':');
+        var key = parts[0].substring(2).trim();
+        if(!_items[key])
+          _items[key] = parts[1].trim();
+      }
+    }
+  }
+
+  function read_title() {
+    if (_items.TITLE) {
+      data.title = _items.TITLE;
+    }
+  }
+
+  // function convert_org_time(org_time) {
+  //   return moment(Date.parse(org_time.replace(/[^0-9:-]/g, ' ')));
+  // }
+
+  // function read_date() {
+  //   if (_items.DATE) {
+  //     data.date = convert_org_time(_items.DATE);
+  //   }
+  // }
+
+  function read_tags(){
+    if(_items.TAGS){
+      // data.setTags(_items.TAGS.split(',').filter((item) => item.trim() != ''));
+      data.setTags(_items.TAGS);
+    }
+  }
+
+  // function read_categories(){
+  //   if(_items.CATEGORIES){
+  //     data.setCategories(_items.CATEGORIES.split(',').map((item) => item.trim()));
+  //   }
+  // }
+
+  function read_layout(){
+    if(_items.LAYOUT){
+      data.layout = _items.LAYOUT;
+    }
+  }
+
+  function read_comments(){
+    if(_items.COMMENTS == "no"){
+      data.comments = false;
+    }
+  }
+
+  function read_all() {
+    if (!/.*\.org/.test(data.source)) {
+      // skip if is not a org file
+      return data;
+    }
+    read_in();
+    read_title();
+    // read_date();
+    read_tags();
+    // read_categories();
+    read_layout();
+    read_comments();
+    return data;
+  }
+}
