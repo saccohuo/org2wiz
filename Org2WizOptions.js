@@ -7,6 +7,7 @@ var OptionFile = "options.ini";
 var CurOptionFile = (objCommon.PathFileExists(org_mode_pluginPath + CustomOptionFile)) ? CustomOptionFile : OptionFile;
 var omOptionFileName = org_mode_pluginPath + CurOptionFile;
 var DialogFile = org_mode_pluginPath + 'optionsdialog.htm';
+var MsgFile = org_mode_pluginPath + 'msgdialog.htm';
 
 
 // alert(omOptionFileName);
@@ -26,7 +27,7 @@ objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", DialogFile, 500, 300, "", Pa
   // objWindow.ShowMessage(typeof ret, "typeof ret",0);
 
   if(ret != null){
-    // alert(ret[0]);
+    // alert(ret);
     // objWindow.ShowMessage(ret[0], "ret[0]",0);
     // objWindow.ShowMessage(ret[1], "ret[1]",0);
     // objWindow.ShowMessage(ret[2], "ret[2]",0);
@@ -46,12 +47,11 @@ objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", DialogFile, 500, 300, "", Pa
     if(omMJOption !== NewMJOption)
       objCommon.SetValueToIni(omOptionFileName, "Options", "ScriptOption", NewMJOption);
 
-    objWindow.ShowMessage("保存成功", "Org2Wiz 选项", 0);
+    // objWindow.ShowMessage("保存成功", "Org2Wiz 选项", 0);
+    objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", MsgFile, 300, 200, "", null, function(msg){});
   }
 });
-
-
-objWindow.AddTimer(function(){return 1;},1);
+// objWindow.AddTimer(function(){return 1;},1);
 // alert('test');
 
 function string_trim(str){

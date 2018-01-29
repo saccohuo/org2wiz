@@ -1,92 +1,94 @@
 ﻿<!DOCTYPE HTML>
-<html>
+<html name="body">
   <head>
+    <script src="jquery.min.js"></script>
     <script type="text/javascript">
-      var WizExplorerApp = window.external;
-      var objApp = WizExplorerApp;
-      var objWindow = objApp.Window;
+     var WizExplorerApp = window.external;
+     var objApp = WizExplorerApp;
+     var objWindow = objApp.Window;
 
-      function getParams(){
-      return objWindow.GetHtmlDialogParam(WizChromeBrowser);
-      }
-      function save(){
-      var retarray = new Array();
-      retarray[0] = document.getElementById("otw_tags").value;
-      var attele = document.getElementById("otw_attach");
-      retarray[1] = attele.options[attele.selectedIndex].value;
-      var encele = document.getElementById("otw_encode");
-      retarray[2] = encele.options[encele.selectedIndex].value;
-      var scriptele = document.getElementById("otw_script");
-      retarray[3] = scriptele.options[scriptele.selectedIndex].value;
-      <!-- alert(retarray[0]); -->
-      <!-- alert(retarray[1]); -->
-      <!-- alert(retarray[2]); -->
-      <!-- alert(retarray[3]); -->
-      <!-- alert(retarray); -->
-      objWindow.CloseHtmlDialog(WizChromeBrowser, retarray);
-      }
-      function cancell(){
-      objWindow.CloseHtmlDialog(WizChromeBrowser, null);
-      }
+     function getParams(){
+       return objWindow.GetHtmlDialogParam(WizChromeBrowser);
+     }
+     function save(){
+       var retarray = new Array();
+       retarray[0] = document.getElementById("otw_tags").value;
+       var attele = document.getElementById("otw_attach");
+       retarray[1] = attele.options[attele.selectedIndex].value;
+       var encele = document.getElementById("otw_encode");
+       retarray[2] = encele.options[encele.selectedIndex].value;
+       var scriptele = document.getElementById("otw_script");
+       retarray[3] = scriptele.options[scriptele.selectedIndex].value;
+       /* alert(retarray[0]);
+        * alert(retarray[1]);
+        * alert(retarray[2]);
+        * alert(retarray[3]);
+        * alert(retarray);*/
+       objWindow.CloseHtmlDialog(WizChromeBrowser, retarray);
+     }
+     function cancell(){
+       objWindow.CloseHtmlDialog(WizChromeBrowser, null);
+     }
+     $(document).keydown(function(e) {
+       // ESCAPE key pressed
+       if (e.keyCode === 27) {
+         // alert(document.activeElement.tagName);
+         cancell();
+       }
+     });
+     $(document).keydown(function(e) {
+       // ENTER key pressed if focus is on DefaultTag input box or no focus, which means focus is on the body
+       if((e.keyCode === 13) && ((document.activeElement.name === "DefaultTag") || (document.activeElement.tagName === "BODY"))){
+         save();
+       }
+     });
     </script>
     <style type="text/css">
-      .buttons{
-      height:30px;
-      width:60px;
-      }
-
-      .divider{
-      width:5px;
-      height:auto;
-      display:inline-block;
-      }
+     .buttons{
+       height:30px;
+       width:65px;
+     }
     </style>
   </head>
-  <body>
+  <body name="body" value="bodys">
     <form name="OptionsForm">
       <p>
-        Org2Wiz 默认标签：<input type="text" name="DefaultTag" id="otw_tags" defaultvalue="" />
+        Org2Wiz 默认标签(T)：<input type="text" class="edited" name="DefaultTag" id="otw_tags" defaultvalue="" accesskey="T" />
       </p>
       <p>
-        Org2Wiz 附件选项：<select name="AttachmentsOption" id="otw_attach">
-          <option value="nodisplay" select="selected">不显示 AddAttach</option>
-          <option value="addtex">显示 AddAttach，添加 .tex</option>
-          <option value="addpdf">显示 AddAttach，添加 .pdf</option>
-          <option value="addtexpdf">显示 AddAttach，添加 .tex 和 .pdf</option>
+        Org2Wiz 附件选项(A)：<select class="edited" name="AttachmentsOption" id="otw_attach" accesskey="A">
+        <option value="nodisplay" select="selected">不显示 AddAttach</option>
+        <option value="addtex">显示 AddAttach，添加 .tex</option>
+        <option value="addpdf">显示 AddAttach，添加 .pdf</option>
+        <option value="addtexpdf">显示 AddAttach，添加 .tex 和 .pdf</option>
         </select>
       </p>
       <p>
-        Org2Wiz 文件编码：<select name="OrgEncodingOption" id="otw_encode">
-          <option value="utf8" select="selected">UTF-8</option>
-          <option value="utf8bom">UTF-8-BOM</option>
-          <option value="gbk">GBK</option>
+        Org2Wiz 文件编码(E)：<select class="edited" name="OrgEncodingOption" id="otw_encode" accesskey="E">
+        <option value="utf8" select="selected">UTF-8</option>
+        <option value="utf8bom">UTF-8-BOM</option>
+        <option value="gbk">GBK</option>
         </select>
       </p>
       <p>
-        Org2Wiz 脚本选项：<select name="ScriptOption" id="otw_script">
-          <option value="yes">保留</option>
-          <option value="no" select="selected">去除</option>
+        Org2Wiz 脚本选项(X)：<select class="edited" name="ScriptOption" id="otw_script" accesskey="X">
+        <option value="yes">保留</option>
+        <option value="no" select="selected">去除</option>
         </select>
       </p>
       <div style="text-align: center">
-        <button id="saveform" class="buttons" type="submit" value="save" onclick="save()">保存</button>
+        <button id="saveform" class="buttons" type="submit" value="save" onclick="save()" accesskey="S">保存(S)</button>
         &nbsp;
-        <button id="cancellform" class="buttons" type="submit" value="cancell" onclick="cancell()" autofocus="autofocus">取消</button>
+        <button id="cancellform" class="buttons" type="submit" value="cancell" onclick="cancell()" accesskey="Z">取消(Z)</button>
         &nbsp;
-        <button id="resetform" class="buttons" type="reset" value="reset">重置</button>
+        <button id="resetform" class="buttons" type="reset" value="reset" accesskey="R">重置(R)</button>
       </div>
     </form>
     <script type="text/javascript">
-      <!-- alert(getParams()[0]); -->
-      document.getElementById("otw_tags").defaultValue = getParams()[0];
-      <!-- alert(document.getElementById("otw_tags").value); -->
-      <!-- alert(getParams()[1]); -->
-      document.getElementById("otw_attach").value = getParams()[1];
-      <!-- alert(document.getElementById("otw_attach").value); -->
-      document.getElementById("otw_encode").value = getParams()[2];
-      <!-- alert(document.getElementById("otw_encode").value); -->
-      document.getElementById("otw_script").value = getParams()[3];
-      <!-- alert(document.getElementById("otw_script").checked); -->
+     document.getElementById("otw_tags").defaultValue = getParams()[0];
+     document.getElementById("otw_attach").value = getParams()[1];
+     document.getElementById("otw_encode").value = getParams()[2];
+     document.getElementById("otw_script").value = getParams()[3];
     </script>
   </body>
 </html>
