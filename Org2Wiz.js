@@ -136,10 +136,10 @@ function OnOMButtonClicked(){
         doc.ExecuteFunction2("otw_removeScript", html_str, MathjaxUrl, function(ret){
           if(ret!=null){
             html_str_new = ret;
-            objCommon.SaveTextToFile(HtmlFile.concat(".txt"),html_str_new,"utf-8-bom");
+            // objCommon.SaveTextToFile(HtmlFile.concat(".txt"),html_str_new,"utf-8-bom");
           }
           else{
-            objCommon.SaveTextToFile(HtmlFile.concat(".txt"),"function \"otw_removeScript\" return value is null.","utf-8-bom");
+            // objCommon.SaveTextToFile(HtmlFile.concat(".txt"),"function \"otw_removeScript\" return value is null.","utf-8-bom");
           }
           objWindow.CurrentDocument.UpdateDocument3(html_str_new, otw_ScriptOption); // 包含脚本，显示进度
         });
@@ -168,16 +168,54 @@ function OnOMButtonClicked(){
   // objApp.RunScriptFile(org_mode_pluginPath + "lib/read-info.js", 'javascript');
   var omDefaultTag = otw_getDefaultTag();
   var data = new Object();
-  data.source = orgAttach;
-  data.content = objCommon.LoadTextFromFile(data.source);
+  // data.source = orgAttach.replace(/\\/g, '/');
+  data.source = orgAttach.replace(/\\/g, '/');
+  data.tmpsource = data.source + '~';
+  // alert(data.tmpsource);
+  // data.source = "D:/MyDocuments/My Knowledge/Data/shuaike945@gmail.com/Z00T 测试/orgmodemathjaxtest.org_Attachments/test.org";
+  // data.rawcontent = objCommon.LoadTextFromFile(data.source);
+
+  //---------------------------------------------------------------------
+  var checkCmd = 'python';
+  // alert('checkCmd'+checkCmd);
+  var checkParam = '\"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.py' + '\" ' + '\"' + data.source + '\"' + ' \"' + data.tmpsource + '\"';
+  // var checkParam = '\"' + data.source + '\" 2>\&1';
+  // 这里现在还是没办法获取到返回值，所以暂时只能对所有情况都把文件重新拷贝一份，其实不太合适
+  // alert('checkParam'+checkParam);
+  var BOMmsg = objCommon.RunExe(checkCmd, checkParam, true);
+  // alert('BOMmsg= ' + BOMmsg);
+  
+  data.content = objCommon.LoadTextFromFile(data.tmpsource);
+  // var convCmd = 'unix2dos.exe';
+  // // var convCmd = '\"' + org_mode_pluginPath + 'unix2dos.exe' + '\"';
+  // alert(convCmd);
+  // var tmporg = data.source + '.tmporg';
+  // alert(tmporg);
+  // var convParam = '-m -n \"' + data.source + '\" \"' + tmporg + '\"';
+  // alert(convParam);
+  // var convmsg = objCommon.RunExe(convCmd, strParam, true);
+  // if(convmsg === 1){
+  //   alert('Org file BOM conversion failed.');
+  // }
+  // alert(convmsg);
+
+  objCommon.RunExe("cmd ", "/c del /f /q \"" + data.tmpsource + "\"", true);
+  
+  // Objcommon.SaveTextToFile(data.source+'.txt', data.content, 'unicode');
+  // objCommon.SaveTextToFile(data.source+'.txt', data.content, 'gbk');
+  // alert(data.content);
   data.tags = '';
   data.setTags = function(tagsStr){
     this.tags = otw_stringTrim(tagsStr, ',', ';');
   };
 
   data = read_info(data);
-  
-  // alert(data.tags[0]);
+
+  // alert(otw_stringTrim(data.tags, ';'));
+  // alert(otw_stringTrimArray(data.tags, ';')[6]);
+
+  //---------------------------------------------------------------------
+
   objDocument.TagsText = data.tags;
 
 
@@ -741,3 +779,4 @@ function read_info(data) {
     return data;
   }
 }
+
