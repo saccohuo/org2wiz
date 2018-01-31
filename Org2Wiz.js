@@ -68,9 +68,10 @@ function OnOMButtonClicked(){
   // strMJpath = "(setq org-html-mathjax-options '((path \"https://cdn.mathjax.org/mathjax/latest/MathJax.js\?config=TeX-AMS-MML_HTMLorMML\")(scale \"100\")(align \"center\")(indent \"2em\")(mathml nil)))(setq org-html-mathjax-template \"^<script type=\\\"text/javascript\\\" src=\\\"%PATH\\\"^>^</script^>\")";
   // var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
   RegExp.emacsescape= function(s) {
-    return s.replace(/\-?/g, '\\\\$&');
+    return s.replace(/\?/g, '\\\\$&');
   };
   var MathjaxUrlEmacs = RegExp.emacsescape(MathjaxUrl);
+  // MathjaxUrlEmacs = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js\\?config=TeX-MML-AM_CHTML";
   var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"" + MathjaxUrlEmacs + "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
   // "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js\\?config=TeX-MML-AM_CHTML"
   var strOfflinePath = "(setq org-html-mathjax-options '((path \\\"" + offlineMJpath +  "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
@@ -169,7 +170,7 @@ function OnOMButtonClicked(){
   var omDefaultTag = otw_getDefaultTag();
   var data = new Object();
   // data.source = orgAttach.replace(/\\/g, '/');
-  data.source = orgAttach.replace(/\\/g, '/');
+  data.source = orgAttach;
   data.tmpsource = data.source + '~';
   // alert(data.tmpsource);
   // data.source = "D:/MyDocuments/My Knowledge/Data/shuaike945@gmail.com/Z00T 测试/orgmodemathjaxtest.org_Attachments/test.org";
@@ -178,12 +179,12 @@ function OnOMButtonClicked(){
   //---------------------------------------------------------------------
   var checkCmd = 'python';
   // alert('checkCmd'+checkCmd);
-  var checkParam = '\"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.py' + '\" ' + '\"' + data.source + '\"' + ' \"' + data.tmpsource + '\"';
+  var checkParam = '\"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.py' + '\" ' + '\"' + data.source.replace(/\\/g, '/') + '\"' + ' \"' + data.tmpsource.replace(/\\/g, '/') + '\"';
   // var checkParam = '\"' + data.source + '\" 2>\&1';
   // 这里现在还是没办法获取到返回值，所以暂时只能对所有情况都把文件重新拷贝一份，其实不太合适
   // alert('checkParam'+checkParam);
   var BOMmsg = objCommon.RunExe(checkCmd, checkParam, true);
-  // alert('BOMmsg= ' + BOMmsg);
+  alert('BOMmsg= ' + BOMmsg);
   
   data.content = objCommon.LoadTextFromFile(data.tmpsource);
   // var convCmd = 'unix2dos.exe';
@@ -199,7 +200,8 @@ function OnOMButtonClicked(){
   // }
   // alert(convmsg);
 
-  objCommon.RunExe("cmd ", "/c del /f /q \"" + data.tmpsource + "\"", true);
+  objCommon.RunExe('cmd', '/c del /f /q \"' + data.tmpsource + '\"', true);
+  // objCommon.RunExe('del', '/f /q \"' + data.tmpsource + '\"', true);
   
   // Objcommon.SaveTextToFile(data.source+'.txt', data.content, 'unicode');
   // objCommon.SaveTextToFile(data.source+'.txt', data.content, 'gbk');
@@ -211,8 +213,8 @@ function OnOMButtonClicked(){
 
   data = read_info(data);
 
-  // alert(otw_stringTrim(data.tags, ';'));
-  // alert(otw_stringTrimArray(data.tags, ';')[6]);
+  alert(otw_stringTrim(data.tags, ';'));
+  alert(otw_stringTrimArray(data.tags, ';')[6]);
 
   //---------------------------------------------------------------------
 
@@ -231,7 +233,7 @@ function OnOMButtonClicked(){
   //-----------------------------------------------------------------------------------------------
   // copy establish time of note into clipboard
   //-----------------------------------------------------------------------------------------------
-
+  
 }
 
 //-------------- Add Org2Wiz button and function OnOMButtonClicked-----------------------
