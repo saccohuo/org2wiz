@@ -47,11 +47,9 @@ objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", DialogFile, 500, 300, "", Pa
     if(omMJOption !== NewMJOption)
       objCommon.SetValueToIni(omOptionFileName, "Options", "ScriptOption", NewMJOption);
 
-    // objWindow.ShowMessage("保存成功", "Org2Wiz 选项", 0);
     objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", MsgFile, 300, 200, "", null, function(msg){});
   }
 });
-// objWindow.AddTimer(function(){return 1;},1);
 // alert('test');
 
 function string_trim(str){
