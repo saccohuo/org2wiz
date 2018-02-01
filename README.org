@@ -2,9 +2,11 @@
 #+OPTIONS: ^:{}
 
 * 插件介绍
-为知笔记的一款插件，使为知支持 org-mode。
+为知笔记的一款插件，将 org-mode 文件作为附件加入笔记中，笔记内容替换为 org-mode 文件的 html 格式。
 * 插件安装
-打包下载 repo 的 zip 压缩包，然后将 ~.zip~ 后缀改为 ~.wizplugin~ ，双击安装即可。
+下面两种方法都可以。
+1. 在 [[https://github.com/saccohuo/org2wiz/releases][Releases]] 中下载对应版本，安装。
+2. 打包下载 repo 的 zip 压缩包，然后将 ~.zip~ 后缀改为 ~.wizplugin~ ，双击安装即可。
 * 插件使用
 org 文档标题必须以 ~.org~ 结尾。插入附件，后缀为 ~.org~ ，然后在为知笔记界面点击 ~org2wiz~ 。
 
@@ -23,7 +25,7 @@ strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-htm
 感谢好心人 [[http://bbs.wiz.cn/space-uid-26363.html][@yangguang760]] 给出了解决方案。
 * 想法
 下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
-** DONE 从 org 导出的 html 也支持 MathJax(本地/远程) （完成）
+** DONE 从 org 导出的 html 也支持 MathJax(本地/远程)
 CLOSED: [2018-01-27 Sat 02:30]
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2018-01-27 Sat 02:30]
@@ -54,7 +56,7 @@ CLOSED: [2016-07-17 Sun 17:44]
 - State "DONE"       from "TODO"       [2016-07-17 Sun 17:44]
 :END:
 如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
-** DONE 对于后缀名为 .org 且附件中没有 .org 后缀名的文件的笔记，点击 org2wiz 按钮可以弹出对话框设置文件名，然后自动添加一个空白的 .org 文件（完成）
+** DONE 对于后缀名为 .org 且附件中没有 .org 后缀名的文件的笔记，点击 org2wiz 按钮可以弹出对话框设置文件名，然后自动添加一个空白的 .org 文件
 CLOSED: [2018-01-27 Sat 14:30]
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2018-01-27 Sat 14:30]
@@ -77,21 +79,28 @@ CLOSED: [2018-01-27 Sat 14:30]
     (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
   )
 #+END_SRC
-** DONE 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件（完成）
+** DONE 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件
 CLOSED: [2016-09-18 Sun 19:02]
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2016-09-18 Sun 19:02]
 :END:
-** TODO 自动把 org 文件中的 tag 添加到为知笔记中
+** DONE 自动把 org 文件中的 tag 添加到为知笔记中
+CLOSED: [2018-02-02 Fri 01:17]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2018-02-02 Fri 01:17]
+:END:
 找到 tagcollection 对象，从 Document 删除所有 tag，然后从 org 中读取所有 tag（这一步不知道怎么实现，要参考 [[https://github.com/CodeFalling/hexo-renderer-org][hexo-renderer-org]]），加入到为知中。
 * 插件已更新功能
 - 去除 markdown 相关功能以及 mdExport 按钮。
-- 自动找到附件中的 org 文件，不需要一定在附件的第一位。
-- org 生成 html 更新到笔记中之后，不再删除生成的 html 文件。
 - MathJax 渲染。
-- 进行 Org2Wiz 转换时，自动添加默认标签到文档，支持多标签。
-- 一键把与 org 同名的tex 文件（或者 tex 文件与 pdf 文件）作为附件到文档（需要在工具里面设置“附件选项”值为“1”或 “2”，才会显示“AddAttach”按钮，点击该按钮可实现一键添加附件）。
-- 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件，需提前设置好编码方式：UTF8(默认)，UTF8-BOM，GBK。
+- 自动找到附件中的 org 文件，不需要一定在附件的第一位。
+- org 生成 html 更新到笔记中之后，保留/删除生成的 html 文件。可选。
+- 保留/删除 emacs 导出的 html 中的 script 标签。可选。
+- 进行 Org2Wiz 转换时，自动添加默认标签到文档，支持多标签。可选。
+- 进行 Org2Wiz 转换时，把 org 文件中的 Tag 自动添加到笔记中（覆盖）。可选。
+- 一键把与 org 同名的 tex 文件或/与 pdf 文件作为附件到文档。可选。
+- 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件，需提前设置好编码方式：UTF8(默认)，UTF8-BOM，GBK，Unicode。
+- 使用 Org2Wiz 创建笔记时，把笔记创建时间复制到剪贴板；使用 Org2Wiz 更新笔记时，把笔记更新时间复制到剪贴板。可选。
 * 参考
 - [[http://www.wiz.cn/manual/plugin/][为知笔记 Windows 插件开发文档]]
 - [[https://www.wiz.cn/category/tech/dev][为知笔记 4.5 Windows 开发文档]]
