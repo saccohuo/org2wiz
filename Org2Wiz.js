@@ -33,6 +33,8 @@ function OnOMButtonClicked(){
     templateFilename = "Default-UTF8.org";
   }else if(omEncodingOption === 'utf8bom'){
     templateFilename = "Default-UTF8-BOM.org";
+  }else if(omEncodingOption === 'unicode'){
+    templateFilename = "Default-UTF16LE.org";
   }else if(omEncodingOption === 'gbk'){
     templateFilename = "Default-GBK.org";
   }else{
