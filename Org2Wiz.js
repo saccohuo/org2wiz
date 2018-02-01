@@ -92,7 +92,7 @@ function OnOMButtonClicked(){
   
   strMJSetting = strOnlineMJ;
 
-  var strCodingSetting = '(set-language-environment \\\"UTF-8\\\")';
+  var strCodingSetting = '(set-language-environment \\\"UTF-8\\\") (setq-default make-backup-files nil)';
   
   var strCmd = "emacs.exe";
   var strParam = " --batch -q --no-site-file --eval=\"" + strCodingSetting + "\" --visit \"" + orgAttach + "\" --eval=\"" + strMJSetting + "\" --funcall org-html-export-to-html";
