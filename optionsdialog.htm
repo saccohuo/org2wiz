@@ -13,18 +13,17 @@
      function save(){
        var retarray = new Array();
        retarray[0] = document.getElementById("otw_tags").value;
-       var attele = document.getElementById("otw_attach");
-       retarray[1] = attele.options[attele.selectedIndex].value;
-       var encele = document.getElementById("otw_encode");
-       retarray[2] = encele.options[encele.selectedIndex].value;
-       var scriptele = document.getElementById("otw_script");
-       retarray[3] = scriptele.options[scriptele.selectedIndex].value;
-       /* alert(retarray[0]);
-        * alert(retarray[1]);
-        * alert(retarray[2]);
-        * alert(retarray[3]);
-        * alert(retarray);*/
+       retarray[1] = getValue("otw_attach");
+       retarray[2] = getValue("otw_encode");
+       retarray[3] = getValue("otw_script");
+       retarray[4] = getValue("otw_tagopt");
+       retarray[5] = getValue("otw_html");
+       retarray[6] = getValue("otw_date");
        objWindow.CloseHtmlDialog(WizChromeBrowser, retarray);
+     }
+     function getValue(eleid){
+       var ele = document.getElementById(eleid);
+       return ele.options[ele.selectedIndex].value;
      }
      function cancell(){
        objWindow.CloseHtmlDialog(WizChromeBrowser, null);
@@ -56,6 +55,13 @@
         Org2Wiz 默认标签(T)：<input type="text" class="edited" name="DefaultTag" id="otw_tags" defaultvalue="" accesskey="T" />
       </p>
       <p>
+        Org2Wiz 标签选项(Q)：<select class="edited" name="TagOption" id="otw_tagopt" accesskey="Q">
+        <option value="nop" select="selected">无操作</option>
+        <option value="adddefault">添加默认标签</option>
+        <option value="updatefromorg">从org文件中更新标签</option>
+        </select>
+      </p>
+      <p>
         Org2Wiz 附件选项(A)：<select class="edited" name="AttachmentsOption" id="otw_attach" accesskey="A">
         <option value="nodisplay" select="selected">不显示 AddAttach</option>
         <option value="addtex">显示 AddAttach，添加 .tex</option>
@@ -77,6 +83,20 @@
         <option value="no" select="selected">去除</option>
         </select>
       </p>
+      <p>
+        Org2Wiz Html文件(H)：<select class="edited" name="HtmlOption" id="otw_html" accesskey="H">
+        <option value="yes">保留</option>
+        <option value="no" select="selected">去除</option>
+        </select>
+      </p>
+      <p>
+        Org2Wiz 复制时间(C)：<select class="edited" name="CopyDate" id="otw_date" accesskey="C">
+        <option value="nop" select="selected">无操作</option>
+        <option value="copyall">首次复制更新时间，后续复制更新时间</option>
+        <option value="establish">首次复制创建时间</option>
+        <option value="update">复制更新时间</option>
+        </select>
+      </p>
       <div style="text-align: center">
         <button id="saveform" class="buttons" type="submit" value="save" onclick="save()" accesskey="S">保存(S)</button>
         &nbsp;
@@ -90,6 +110,9 @@
      document.getElementById("otw_attach").value = getParams()[1];
      document.getElementById("otw_encode").value = getParams()[2];
      document.getElementById("otw_script").value = getParams()[3];
+     document.getElementById("otw_tagopt").value = getParams()[4];
+     document.getElementById("otw_html").value = getParams()[5];
+     document.getElementById("otw_date").value = getParams()[6];
     </script>
   </body>
 </html>

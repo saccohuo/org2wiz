@@ -163,72 +163,71 @@ function OnOMButtonClicked(){
   // objWindow.CurrentDocument.UpdateDocument6(HtmlFile, HtmlFile, 0x0006);
   // objWindow.CurrentDocument.UpdateDocument5(HtmlFile);
 
-  // 注释掉下面这句话，让为知在生成 html 加入到文档中之后不再删除 html 文件
-  // objCommon.RunExe("cmd ", "/c del /f /q \""+HtmlFile+"\"", true);
-
+  var omHtmlOption = otw_getHtmlOption();
+  if(omHtmlOption === 'yes'){
+  }else if(omHtmlOption === 'no'){
+    // 删除 emacs 导出的 html 文件
+    objCommon.RunExe("cmd", "/c del /f /q \"" + HtmlFile + "\"", true);
+  }else{
+  }
 
   //-----------------------------------------------------------------------------------------------
-  // add default tag into note
+  // add default tags or update tags from org into note
   //-----------------------------------------------------------------------------------------------
   // objApp.AddGlobalScript(org_mode_pluginPath + "lib/read-info.js");
   // objApp.RunScriptFile(org_mode_pluginPath + "lib/read-info.js", 'javascript');
-  var omDefaultTag = otw_getDefaultTag();
-  var data = new Object();
-  // data.source = orgAttach.replace(/\\/g, '/');
-  data.source = orgAttach;
-  data.tmpsource = data.source + '~';
-  // alert(data.tmpsource);
-  // data.source = "D:/MyDocuments/My Knowledge/Data/shuaike945@gmail.com/Z00T 测试/orgmodemathjaxtest.org_Attachments/test.org";
-  // data.rawcontent = objCommon.LoadTextFromFile(data.source);
+  var omTagOption = otw_getTagOption();
+  if(omTagOption === 'nop'){
+  }else if(omTagOption === 'adddefault'){
+    var omDefaultTag = otw_getDefaultTag();
+    if(omDefaultTag !== "" && omDefaultTag !== "noTag"){
+      otw_addTags(objDocument,omDefaultTag);
+    }
+  }else if(omTagOption === 'updatefromorg'){
+    var data = new Object();
+    // data.source = orgAttach.replace(/\\/g, '/');
+    data.source = orgAttach;
+    data.tmpsource = data.source + '~';
+    // alert(data.tmpsource);
 
-  //---------------------------------------------------------------------
-  var checkCmd = 'python';
-  // alert('checkCmd'+checkCmd);
-  var checkParam = '\"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.py' + '\" ' + '\"' + data.source.replace(/\\/g, '/') + '\"' + ' \"' + data.tmpsource.replace(/\\/g, '/') + '\"';
-  // var checkParam = '\"' + data.source + '\" 2>\&1';
-  // 这里现在还是没办法获取到返回值，所以暂时只能对所有情况都把文件重新拷贝一份，其实不太合适
-  // alert('checkParam'+checkParam);
-  var BOMmsg = objCommon.RunExe(checkCmd, checkParam, true);
-  // alert('BOMmsg= ' + BOMmsg);
-  
-  data.content = objCommon.LoadTextFromFile(data.tmpsource);
-  // var convCmd = 'unix2dos.exe';
-  // // var convCmd = '\"' + org_mode_pluginPath + 'unix2dos.exe' + '\"';
-  // alert(convCmd);
-  // var tmporg = data.source + '.tmporg';
-  // alert(tmporg);
-  // var convParam = '-m -n \"' + data.source + '\" \"' + tmporg + '\"';
-  // alert(convParam);
-  // var convmsg = objCommon.RunExe(convCmd, strParam, true);
-  // if(convmsg === 1){
-  //   alert('Org file BOM conversion failed.');
-  // }
-  // alert(convmsg);
+    var checkCmd = 'python';
+    // alert('checkCmd'+checkCmd);
+    var checkParam = '\"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.py' + '\" ' + '\"' + data.source.replace(/\\/g, '/') + '\"' + ' \"' + data.tmpsource.replace(/\\/g, '/') + '\"';
+    // var checkParam = '\"' + data.source + '\" 2>\&1';
+    // 这里现在还是没办法获取到返回值，所以暂时只能对所有情况都把文件重新拷贝一份，其实不太合适
+    // alert('checkParam'+checkParam);
+    var BOMmsg = objCommon.RunExe(checkCmd, checkParam, true);
+    // alert('BOMmsg= ' + BOMmsg);
+    
+    data.content = objCommon.LoadTextFromFile(data.tmpsource);
+    // var convCmd = 'unix2dos.exe';
+    // // var convCmd = '\"' + org_mode_pluginPath + 'unix2dos.exe' + '\"';
+    // alert(convCmd);
+    // var tmporg = data.source + '.tmporg';
+    // alert(tmporg);
+    // var convParam = '-m -n \"' + data.source + '\" \"' + tmporg + '\"';
+    // alert(convParam);
+    // var convmsg = objCommon.RunExe(convCmd, strParam, true);
+    // if(convmsg === 1){
+    //   alert('Org file BOM conversion failed.');
+    // }
+    // alert(convmsg);
 
-  objCommon.RunExe('cmd', '/c del /f /q \"' + data.tmpsource + '\"', true);
-  // objCommon.RunExe('del', '/f /q \"' + data.tmpsource + '\"', true);
-  
-  // Objcommon.SaveTextToFile(data.source+'.txt', data.content, 'unicode');
-  // objCommon.SaveTextToFile(data.source+'.txt', data.content, 'gbk');
-  // alert(data.content);
-  data.tags = '';
-  data.setTags = function(tagsStr){
-    this.tags = otw_stringTrim(tagsStr, ',');
-  };
+    objCommon.RunExe('cmd', '/c del /f /q \"' + data.tmpsource + '\"', true);
+    
+    // Objcommon.SaveTextToFile(data.source+'.txt', data.content, 'unicode');
+    // objCommon.SaveTextToFile(data.source+'.txt', data.content, 'gbk');
+    // alert(data.content);
+    data.tags = '';
+    data.setTags = function(tagsStr){
+      this.tags = otw_stringTrim(tagsStr, ',');
+    };
 
-  data = read_info(data);
+    data = read_info(data);
 
-  // alert(otw_stringTrim(data.tags, ';'));
-  // alert(otw_stringTrimArray(data.tags, ';')[6]);
-
-  //---------------------------------------------------------------------
-
-  objDocument.TagsText = data.tags;
-
-
-  // if(omDefaultTag !== "" && omDefaultTag !== "noTag"){
-  //   otw_addTags(objDocument,omDefaultTag);
-  // }
+    objDocument.TagsText = data.tags;
+  }else{
+  }
 
   //-----------------------------------------------------------------------------------------------
   // mark this doc to be rendered with Mathjax in future
@@ -275,7 +274,7 @@ function OnOMAttachClicked(){
     }
   }
 
-  return null;
+  return;
 }
 
 //---------------------- get all options ------------------------
@@ -284,19 +283,26 @@ function otw_getDefaultTag(){
   return otw_stringTrim(objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag"));
 }
 
+function otw_getTagOption(){
+  return objCommon.GetValueFromIni(omOptionFileName, "Options", "TagOption");
+}
+
 function otw_getAttachOption(){
   return objCommon.GetValueFromIni(omOptionFileName, "Options", "ScriptOption");
-  
 }
 
 function otw_getEncodingOption(){
   return objCommon.GetValueFromIni(omOptionFileName, "Options", "OrgEncodingOption");
-  
 }
 
 function otw_getScriptOption(){
   return objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
-  
+}
+function otw_getHtmlOption(){
+  return objCommon.GetValueFromIni(omOptionFileName, "Options", "HtmlOption");
+}
+function otw_getCopyDate(){
+  return objCommon.GetValueFromIni(omOptionFileName, "Options", "CopyDate");
 }
 
 function otw_stringTrim(str, dlmt_in=';', dlmt_out=';'){
