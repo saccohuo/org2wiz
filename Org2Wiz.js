@@ -211,7 +211,7 @@ function OnOMButtonClicked(){
   // alert(data.content);
   data.tags = '';
   data.setTags = function(tagsStr){
-    this.tags = otw_stringTrim(tagsStr, ',', ';');
+    this.tags = otw_stringTrim(tagsStr, ',');
   };
 
   data = read_info(data);
@@ -279,7 +279,7 @@ function OnOMAttachClicked(){
 //---------------------- get all options ------------------------
 //---------------------------------------------------------------
 function otw_getDefaultTag(){
-  return otw_stringTrim(objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag"), ';', ';');
+  return otw_stringTrim(objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag"));
 }
 
 function otw_getAttachOption(){
@@ -297,7 +297,7 @@ function otw_getScriptOption(){
   
 }
 
-function otw_stringTrim(str, dlmt_in, dlmt_out){
+function otw_stringTrim(str, dlmt_in=';', dlmt_out=';'){
   if(typeof str === 'string'){
     var strArray = str.split(dlmt_in);
     strArray = strArray.filter(el => el.trim() != ''); // for ES2015
@@ -308,7 +308,7 @@ function otw_stringTrim(str, dlmt_in, dlmt_out){
   return '';
 }
 
-function otw_stringTrimArray(str, dlmt_in){
+function otw_stringTrimArray(str, dlmt_in=';'){
   if(typeof str === 'string'){
     var strArray = str.split(dlmt_in);
     strArray = strArray.filter(el => el.trim() != ''); // for ES2015
@@ -320,9 +320,9 @@ function otw_stringTrimArray(str, dlmt_in){
 
 //---------------------------------------------------------------
 function otw_addTags(curdoc, tags){
-  var DocTags = otw_stringTrim(curdoc.TagsText, ';', ';');
-  tags = otw_stringTrim(tags, ';', ';');
-  var DocTagsNew = otw_stringTrim(DocTags + ';' + tags, ';', ';'); // concat, trim and remove duplicate items
+  var DocTags = otw_stringTrim(curdoc.TagsText);
+  tags = otw_stringTrim(tags);
+  var DocTagsNew = otw_stringTrim(DocTags + ';' + tags); // concat, trim and remove duplicate items
   curdoc.TagsText = DocTagsNew;
 }
 
