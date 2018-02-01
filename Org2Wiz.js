@@ -89,18 +89,21 @@ function OnOMButtonClicked(){
 
   
   strMJSetting = strOnlineMJ;
+
+  var strCodingSetting = '(set-language-environment \\\"UTF-8\\\")';
   
   var strCmd = "emacs.exe";
-  var strParam = " --batch -q --no-site-file --visit \"" + orgAttach + "\" --eval=\"" + strMJSetting + "\" --funcall org-html-export-to-html";
+  var strParam = " --batch -q --no-site-file --eval=\"" + strCodingSetting + "\" --visit \"" + orgAttach + "\" --eval=\"" + strMJSetting + "\" --funcall org-html-export-to-html";
   // objWindow.ShowMessage(strParam, "strParam",0);
   
 
   objCommon.RunExe(strCmd, strParam, true);
 
   var HtmlFile = orgAttach.replace(/\.org$/i,'.html');
-  if(!objCommon.PathFileExists(HtmlFile))
+  if(!objCommon.PathFileExists(HtmlFile)){
     return;
-
+    objWindow.ShowMessage("Cannot find html file exported by emacs.", "Org2Wiz Error",0);
+  }
 
   //-----------------------------------------------------------------------------------------------
   // update html into Wiznote note(remove online Mathjax first)
@@ -184,7 +187,7 @@ function OnOMButtonClicked(){
   // 这里现在还是没办法获取到返回值，所以暂时只能对所有情况都把文件重新拷贝一份，其实不太合适
   // alert('checkParam'+checkParam);
   var BOMmsg = objCommon.RunExe(checkCmd, checkParam, true);
-  alert('BOMmsg= ' + BOMmsg);
+  // alert('BOMmsg= ' + BOMmsg);
   
   data.content = objCommon.LoadTextFromFile(data.tmpsource);
   // var convCmd = 'unix2dos.exe';
@@ -213,8 +216,8 @@ function OnOMButtonClicked(){
 
   data = read_info(data);
 
-  alert(otw_stringTrim(data.tags, ';'));
-  alert(otw_stringTrimArray(data.tags, ';')[6]);
+  // alert(otw_stringTrim(data.tags, ';'));
+  // alert(otw_stringTrimArray(data.tags, ';')[6]);
 
   //---------------------------------------------------------------------
 
