@@ -15,6 +15,25 @@ var omOptionFileName = org_mode_pluginPath + CurOptionFile;
 
 var MathjaxUrl = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
 
+Date.prototype.orgtime = function() {
+  var year = this.getFullYear();
+  var mm = trimTime(this.getMonth() + 1); // getMonth() is zero-based
+  var day = trimTime(this.getDate());
+
+  var hour = trimTime(this.getHours());
+  var min = trimTime(this.getMinutes());
+  // var sec = this.getSeconds();
+
+  function trimTime(ret){
+    return (ret>9 ? '' : '0')+ret;
+  }
+
+  var date = [year, mm, day].join('-');
+  var time = [hour, min].join(':');
+  return [date, time].join(' ');
+  // return [[this.getFullYear(),this.getMonth()+1,this.getDate()].join('-'), [this.getHours(), this.getMinutes()].join(':')].join(' ');
+};
+
 //-------------Init button complete-----------------------
 InitOMButton();
 
@@ -27,6 +46,7 @@ function OnOMButtonClicked(){
     return;
 
   var omEncodingOption = otw_getEncodingOption();
+  var omCopyDate = otw_getCopyDate();
   var templateFilename = "Default-UTF8.org";
 
   if(omEncodingOption === 'utf8'){
@@ -41,18 +61,18 @@ function OnOMButtonClicked(){
     templateFilename = "Default-UTF8.org";
   }
 
-  if(objWindow.CurrentDocument.AttachmentCount==0){
+  var orgAttach = GetOrg(objWindow.CurrentDocument);
+  if(orgAttach !== null){
+    orgAttach = orgAttach + '.org';
+  }else{
     AddOrgAttach(objWindow.CurrentDocument,templateFilename);
-    return;
-  }
-
-  var orgAttach = GetOrg(objWindow.CurrentDocument) + ".org";
-  // objWindow.ShowMessage(orgAttach, "Debug orgAttach",0);
-
-  // 如果找不到 org 附件，返回值是空的，orgAttach 就等于 ".org"
-  if(orgAttach === ".org"){
-    AddOrgAttach(objWindow.CurrentDocument,templateFilename);
-    // objWindow.ShowMessage(orgAttach, "Debug orgAttach is empty",0);
+    if(omCopyDate === 'nop'){
+    }else if(omCopyDate === 'copyall' || omCopyDate === 'created'){
+      objCommon.CopyTextToClipboard(objDocument.DateCreated.orgtime());
+    }else if(omCopyDate === 'updated'){
+      objCommon.CopyTextToClipboard(objDocument.DateModified.orgtime());
+    }else{
+    }
     return;
   }
 
@@ -103,8 +123,8 @@ function OnOMButtonClicked(){
 
   var HtmlFile = orgAttach.replace(/\.org$/i,'.html');
   if(!objCommon.PathFileExists(HtmlFile)){
-    return;
     objWindow.ShowMessage("Cannot find html file exported by emacs.", "Org2Wiz Error",0);
+    return;
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -137,23 +157,18 @@ function OnOMButtonClicked(){
     var html_str = objCommon.LoadTextFromFile(HtmlFile);
     // alert(html_str);
     var html_str_new = html_str;
-    try{
-      doc.ExecuteScript(otw_removeScript.toString(),function(){
-        doc.ExecuteFunction2("otw_removeScript", html_str, MathjaxUrl, function(ret){
-          if(ret!=null){
-            html_str_new = ret;
-            // objCommon.SaveTextToFile(HtmlFile.concat(".txt"),html_str_new,"utf-8-bom");
-          }
-          else{
-            // objCommon.SaveTextToFile(HtmlFile.concat(".txt"),"function \"otw_removeScript\" return value is null.","utf-8-bom");
-          }
-          objWindow.CurrentDocument.UpdateDocument3(html_str_new, otw_ScriptOption); // 包含脚本，显示进度
-        });
+    doc.ExecuteScript(otw_removeScript.toString(),function(){
+      doc.ExecuteFunction2("otw_removeScript", html_str, MathjaxUrl, function(ret){
+        if(ret!=null){
+          html_str_new = ret;
+          // objCommon.SaveTextToFile(HtmlFile.concat(".txt"),html_str_new,"utf-8-bom");
+        }
+        else{
+          // objCommon.SaveTextToFile(HtmlFile.concat(".txt"),"function \"otw_removeScript\" return value is null.","utf-8-bom");
+        }
+        objWindow.CurrentDocument.UpdateDocument3(html_str_new, otw_ScriptOption); // 包含脚本，显示进度
       });
-    }
-    catch(err){
-      alert(err.message);
-    }
+    });
   }
   else
     objWindow.CurrentDocument.UpdateDocument(HtmlFile, otw_ScriptOption); // 不包含脚本，只显示进度
@@ -237,7 +252,11 @@ function OnOMButtonClicked(){
   //-----------------------------------------------------------------------------------------------
   // copy establish time of note into clipboard
   //-----------------------------------------------------------------------------------------------
-  
+  if(omCopyDate === 'nop' || omCopyDate === 'created'){
+  }else if(omCopyDate === 'copyall' || omCopyDate === 'updated'){
+    objCommon.CopyTextToClipboard(objDocument.DateModified.orgtime());
+  }else{
+  }
 }
 
 //-------------- Add Org2Wiz button and function OnOMButtonClicked-----------------------
@@ -255,9 +274,11 @@ function OnOMAttachClicked(){
   var omAttachmentsOption = otw_getAttachOption();
   
   var curDoc = objWindow.CurrentDocument;
-  if(curDoc.AttachmentCount==0)
-    return;
+
   var orgName = GetOrg(curDoc);
+  if(orgName === null){
+    return;
+  }
   var attachPath = curDoc.AttachmentsFilePath;
   // objWindow.ShowMessage("testbefore", "Debug",0);
   // objWindow.ShowMessage(orgName, "Debug orgName",0);
@@ -340,26 +361,27 @@ function GetOrg(curDoc){
   // 后续还需要检查附件是否下载到本地 Downloaded API
   // 已经修改为找到 org 文件才可以，还需要修改来让插件自动找到合适的 org 附件，或者找到多个的情况提示选择
   var AttachCount = curDoc.Attachments.Count;
-  var OrgFilename = 0;
+  if(AttachCount === 0){
+    return null;
+  }
+
   var OrgName = 0;
-  if(AttachCount==0)
-    return;
+  var OrgFilename = 0;
   // 此处还可以使用 _NewEnum 然后使用 for_each 结构
   for (var AttachNum = 0; AttachNum < AttachCount; AttachNum++ ) {
     OrgFilename =  curDoc.Attachments.Item(AttachNum).FileName;
-    if(MFGetFileExtension(OrgFilename).toLowerCase() == '.org'){
-      OrgName =  OrgFilename.replace(/.org$/, ''); 
+    if(MFGetFileExtension(OrgFilename).toLowerCase() === '.org'){
+      OrgName =  OrgFilename.replace(/.org$/, '');
       break;
     }
   }
   // objWindow.ShowMessage(OrgName, "Debug",0);
 
-  if(MFGetFileExtension(OrgFilename).toLowerCase() == '.org'){
+  if(MFGetFileExtension(OrgFilename).toLowerCase() === '.org'){
     return OrgName;
-  }
-  else {
+  }else{
     // objWindow.ShowMessage("There is no org file in this document!", "Warning",0);
-    return "";
+    return null;
   }
 }
 
@@ -563,25 +585,17 @@ function otw_addMathjaxScript() {
 }
 
 function otw_addMathjaxScriptToCurrentDocument() {
-  // alert("doc1");
   otw_addMathjaxScript();
 }
 
 function otw_onHtmlDocumentCompleted(doc) {
-  // alert("update1");
+  var objDocument = objApp.Window.CurrentDocument;
 
-  try {
-    var objDocument = objApp.Window.CurrentDocument;
-    // alert(objDocument);
-
-    if (objDocument) {
-      if (objDocument.Type == "Mathjax") {
-        // alert(objDocument.Type);
-        otw_addMathjaxScript();
-      }
+  if (objDocument) {
+    if (objDocument.Type == "Mathjax") {
+      // alert(objDocument.Type);
+      otw_addMathjaxScript();
     }
-  }
-  catch (err) {
   }
 }
 
