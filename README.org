@@ -67,8 +67,14 @@ CLOSED: [2018-01-27 Sat 14:30]
 - 点击 org2wiz 按钮，弹出对话框，让用户输入文件名（判断是否需要自动添加 .org 后缀）
 - 判断用户输入的文件名是否为空，或者是否点了“取消”（其实这个时候提交的文件名也是空）
 - 根据用户设定的文件名新建 .org 文件，并添加到笔记的附件中
-** 调用 emacs 不显示命令行的黑框
+** DONE 调用 emacs 不显示命令行窗口
+CLOSED: [2018-02-02 Fri 19:30]
+:LOGBOOK:
+- State "DONE"       from              [2018-02-02 Fri 19:30]
+:END:
 可以参考 [[https://github.com/CodeFalling/hexo-renderer-org][hexo-renderer-org]]。
+
+使用 RunHidden 实现，Python 脚本的使用 pyinstaller 的字段设置实现。
 ** org2wiz 可以在调用 emacs 时设置传递或者添加某些字串
 借鉴 hexo-renderer-org 中的 common 字段。也可以同时解决导出 html 时没调用 emacs 配置文件导致的一些问题，比如 emacs 中自己配置的三种标点符号的转义：
 #+BEGIN_SRC emacs-lisp
@@ -90,6 +96,8 @@ CLOSED: [2018-02-02 Fri 01:17]
 - State "DONE"       from "TODO"       [2018-02-02 Fri 01:17]
 :END:
 找到 tagcollection 对象，从 Document 删除所有 tag，然后从 org 中读取所有 tag（这一步不知道怎么实现，要参考 [[https://github.com/CodeFalling/hexo-renderer-org][hexo-renderer-org]]），加入到为知中。
+** TODO 帮助文件
+在 Github 添加帮助页面，在 WizNote 中添加帮助文件。
 * 插件已更新功能
 - 去除 markdown 相关功能以及 mdExport 按钮。
 - MathJax 渲染。
@@ -101,6 +109,9 @@ CLOSED: [2018-02-02 Fri 01:17]
 - 一键把与 org 同名的 tex 文件或/与 pdf 文件作为附件到文档。可选。
 - 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件，需提前设置好编码方式：UTF8(默认)，UTF8-BOM，GBK，Unicode。
 - 使用 Org2Wiz 创建笔记时，把笔记创建时间复制到剪贴板；使用 Org2Wiz 更新笔记时，把笔记更新时间复制到剪贴板。可选。
+* FAQ
+** Bug：“工具”中的设置必须在3秒之内操作完成
+这是个 bug，正在跟为知官方人员沟通解决。
 * 参考
 - [[http://www.wiz.cn/manual/plugin/][为知笔记 Windows 插件开发文档]]
 - [[https://www.wiz.cn/category/tech/dev][为知笔记 4.5 Windows 开发文档]]
