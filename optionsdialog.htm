@@ -3,23 +3,65 @@
   <head>
     <script src="jquery.min.js"></script>
     <script type="text/javascript">
-     var WizExplorerApp = window.external;
-     var objApp = WizExplorerApp;
+     var objApp = window.external;
      var objWindow = objApp.Window;
+     // var WizChromeBroswer = objWindow.CurrentDocumentBrowserObject;
+     var objDocument = objWindow.CurrentDocument;
+     var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
+     var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
+     var CustomOptionFile = "custom.ini";
+     var OptionFile = "options.ini";
+     var CurOptionFile = (objCommon.PathFileExists(org_mode_pluginPath + CustomOptionFile)) ? CustomOptionFile : OptionFile;
+     var omOptionFileName = org_mode_pluginPath + CurOptionFile;
+     var DialogFile = org_mode_pluginPath + 'optionsdialog.htm';
+     var MsgFile = org_mode_pluginPath + 'msgdialog.htm';
 
-     function getParams(){
-       return objWindow.GetHtmlDialogParam(WizChromeBrowser);
+     var omDefaultTag = string_trim(objCommon.GetValueFromIni(omOptionFileName, "Options", "DefaultTag"));
+     var omAttachmentsOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
+     var omEncodingOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "OrgEncodingOption");
+     var omMJOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "ScriptOption");
+     var omTagOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "TagOption");
+     var omHtmlOption = objCommon.GetValueFromIni(omOptionFileName, "Options", "HtmlOption");
+     var omCopyDate = objCommon.GetValueFromIni(omOptionFileName, "Options", "CopyDate");
+
+     function string_trim(str){
+       if(typeof str === 'string'){
+         var strArray = str.split(';');
+         strArray = strArray.filter(el => el.trim() != ''); // for ES2015
+         // strArray = strArray.map(el => el.trim()); // for ES2015
+         str = strArray.join(';');
+         return str;
+       }
+       return '';
      }
+
      function save(){
-       var retarray = new Array();
-       retarray[0] = document.getElementById("otw_tags").value;
-       retarray[1] = getValue("otw_attach");
-       retarray[2] = getValue("otw_encode");
-       retarray[3] = getValue("otw_script");
-       retarray[4] = getValue("otw_tagopt");
-       retarray[5] = getValue("otw_html");
-       retarray[6] = getValue("otw_date");
-       objWindow.CloseHtmlDialog(WizChromeBrowser, retarray);
+       NewDefaultTag = string_trim(document.getElementById("otw_tags").value);
+       NewAttachmentsOption = getValue("otw_attach");
+       NewEncodingOption = getValue("otw_encode");
+       NewMJOption = getValue("otw_script");
+       NewTagOption = getValue("otw_tagopt");
+       NewHtmlOption = getValue("otw_html");
+       NewCopyDate = getValue("otw_date");
+
+       if(omDefaultTag !== NewDefaultTag)
+         objCommon.SetValueToIni(omOptionFileName, "Options", "DefaultTag", NewDefaultTag);
+       if(omAttachmentsOption !== NewAttachmentsOption)
+         objCommon.SetValueToIni(omOptionFileName, "Options", "AttachmentsOption", NewAttachmentsOption);
+       if(omEncodingOption !== NewEncodingOption)
+         objCommon.SetValueToIni(omOptionFileName, "Options", "OrgEncodingOption", NewEncodingOption);
+       if(omMJOption !== NewMJOption)
+         objCommon.SetValueToIni(omOptionFileName, "Options", "ScriptOption", NewMJOption);
+       if(omTagOption !== NewTagOption)
+         objCommon.SetValueToIni(omOptionFileName, "Options", "TagOption", NewTagOption);
+       if(omHtmlOption !== NewHtmlOption)
+         objCommon.SetValueToIni(omOptionFileName, "Options", "HtmlOption", NewHtmlOption);
+       if(omCopyDate !== NewCopyDate)
+         objCommon.SetValueToIni(omOptionFileName, "Options", "CopyDate", NewCopyDate);
+
+       objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", MsgFile, 300, 200, "", "保存成功！", function(msg){
+         objWindow.CloseHtmlDialog(WizChromeBrowser, null);
+       });
      }
      function getValue(eleid){
        var ele = document.getElementById(eleid);
@@ -106,13 +148,13 @@
       </div>
     </form>
     <script type="text/javascript">
-     document.getElementById("otw_tags").defaultValue = getParams()[0];
-     document.getElementById("otw_attach").value = getParams()[1];
-     document.getElementById("otw_encode").value = getParams()[2];
-     document.getElementById("otw_script").value = getParams()[3];
-     document.getElementById("otw_tagopt").value = getParams()[4];
-     document.getElementById("otw_html").value = getParams()[5];
-     document.getElementById("otw_date").value = getParams()[6];
+     document.getElementById("otw_tags").defaultValue = omDefaultTag;
+     document.getElementById("otw_attach").value = omAttachmentsOption;
+     document.getElementById("otw_encode").value = omEncodingOption;
+     document.getElementById("otw_script").value = omMJOption;
+     document.getElementById("otw_tagopt").value = omTagOption;
+     document.getElementById("otw_html").value = omHtmlOption;
+     document.getElementById("otw_date").value = omCopyDate;
     </script>
   </body>
 </html>
