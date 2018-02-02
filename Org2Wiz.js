@@ -112,10 +112,12 @@ function OnOMButtonClicked(){
   
   strMJSetting = strOnlineMJ;
 
-  var strCodingSetting = '(set-language-environment \\\"UTF-8\\\") (setq-default make-backup-files nil)';
+  // var strCodingSetting = '(set-language-environment \\\"UTF-8\\\") (setq-default make-backup-files nil)';
+  var strCodingSetting = '(set-language-environment \\\"UTF-8\\\")';
+  var strBackupSetting = '(setq make-backup-files nil)';
   
-  var strCmd = "emacs.exe";
-  var strParam = " --batch -q --no-site-file --eval=\"" + strCodingSetting + "\" --visit \"" + orgAttach + "\" --eval=\"" + strMJSetting + "\" --funcall org-html-export-to-html";
+  var strCmd = 'emacs.exe';
+  var strParam = '--batch -q --no-site-file --eval=\"' + strCodingSetting + '\" --eval=\"' + strBackupSetting + '\" --visit \"' + orgAttach + '\" --eval=\"' + strMJSetting + '\" --funcall org-html-export-to-html';
   // objWindow.ShowMessage(strParam, "strParam",0);
   
 
@@ -149,8 +151,8 @@ function OnOMButtonClicked(){
   }else{
     otw_ScriptOption = 0x0004;
   }
-  
-  if((otw_ScriptOption & 0x0002)!=0){
+
+  if((otw_ScriptOption & 0x0002) !== 0){
     // alert(otw_ScriptOption);
     var doc = objApp.Window.CurrentDocumentBrowserObject;
     // alert(typeof doc);
@@ -309,7 +311,7 @@ function otw_getTagOption(){
 }
 
 function otw_getAttachOption(){
-  return objCommon.GetValueFromIni(omOptionFileName, "Options", "ScriptOption");
+  return objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
 }
 
 function otw_getEncodingOption(){
@@ -317,7 +319,7 @@ function otw_getEncodingOption(){
 }
 
 function otw_getScriptOption(){
-  return objCommon.GetValueFromIni(omOptionFileName, "Options", "AttachmentsOption");
+  return objCommon.GetValueFromIni(omOptionFileName, "Options", "ScriptOption");
 }
 function otw_getHtmlOption(){
   return objCommon.GetValueFromIni(omOptionFileName, "Options", "HtmlOption");
