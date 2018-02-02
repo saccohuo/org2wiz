@@ -3,14 +3,11 @@
 var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
 // var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
 var objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI"); // CreateWizObject 是内部对象，CreateActiveXObject 是外部对象
-// objWindow.ShowMessage(objCommon.toString(), "objCommon",0);
-// objCommon.OptionsDlg(0);
 var CustomOptionFile = "custom.ini";
 var OptionFile = "options.ini";
 var CurOptionFile = (objCommon.PathFileExists(org_mode_pluginPath + CustomOptionFile)) ? CustomOptionFile : OptionFile;
 var omOptionFileName = org_mode_pluginPath + CurOptionFile;
-// var omOptionFileName = org_mode_pluginPath.replace(/\\/g,'\\\\') + "options.ini";
-// objWindow.ShowMessage(omOptionFileName.toString(), "omOptionFileName",0);
+var MsgFile = org_mode_pluginPath + 'msgdialog.htm';
 
 var MathjaxUrl = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
 
@@ -110,13 +107,12 @@ function OnOMButtonClicked(){
   // strNoMJ = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\\\")";
   // strOfflineMJ = "(setq org-html-mathjax-options '((path \\\"" + offlineMJpath +  "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
 
-  
   strMJSetting = strOnlineMJ;
 
   // var strCodingSetting = '(set-language-environment \\\"UTF-8\\\") (setq-default make-backup-files nil)';
   var strCodingSetting = '(set-language-environment \\\"UTF-8\\\")';
   var strBackupSetting = '(setq make-backup-files nil)';
-  
+
   var strCmd = hiddenCmd;
   var strParam = 'emacs --batch -q --no-site-file --eval=\"' + strCodingSetting + '\" --eval=\"' + strBackupSetting + '\" --visit \"' + orgAttach + '\" --eval=\"' + strMJSetting + '\" --funcall org-html-export-to-html';
 
@@ -205,16 +201,19 @@ function OnOMButtonClicked(){
     data.source = orgAttach;
     data.tmpsource = data.source + '~';
 
-    var checkCmd = hiddenCmd;
-    var checkParam = 'python \"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.py' + '\" ' + '\"' + data.source.replace(/\\/g, '/') + '\"' + ' \"' + data.tmpsource.replace(/\\/g, '/') + '\"';
+    // 这里如果用 RunHidden 会导致不能生成临时 org 文件，可以通过 pyinstaller spec 文件中对 exe 的 console 参数设置来 hide console window
+    var checkCmd = org_mode_pluginPath + 'addbom.exe';
+    var checkParam =  '\"' + data.source.replace(/\\/g, '/') + '\" \"' + data.tmpsource.replace(/\\/g, '/') + '\"';
+    // var checkParam = '\"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.exe' + '\" \"' + data.source.replace(/\\/g, '/') + '\" \"' + data.tmpsource.replace(/\\/g, '/') + '\"';
+    // var checkParam = 'python \"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.py' + '\" ' + '\"' + data.source.replace(/\\/g, '/') + '\"' + ' \"' + data.tmpsource.replace(/\\/g, '/') + '\"';
 
     // 这里现在还是没办法获取到返回值，所以暂时只能对所有情况都把文件重新拷贝一份，其实不太合适
     var BOMmsg = objCommon.RunExe(checkCmd, checkParam, true);
-    
+
     data.content = objCommon.LoadTextFromFile(data.tmpsource);
 
     objCommon.RunExe(hiddenCmd, 'cmd /c del /f /q \"' + data.tmpsource + '\"', true);
-    
+
     // Objcommon.SaveTextToFile(data.source+'.txt', data.content, 'unicode');
     // objCommon.SaveTextToFile(data.source+'.txt', data.content, 'gbk');
     // alert(data.content);
@@ -242,6 +241,8 @@ function OnOMButtonClicked(){
     objCommon.CopyTextToClipboard(objDocument.DateModified.orgtime());
   }else{
   }
+
+  objWindow.ShowHtmlDialogEx(false, "Org2Wiz", MsgFile, 300, 200, "", "更新成功！", function(msg){});
 }
 
 //-------------- Add Org2Wiz button and function OnOMButtonClicked-----------------------
@@ -274,6 +275,7 @@ function OnOMAttachClicked(){
     }
   }
 
+  objWindow.ShowHtmlDialogEx(false, "Org2Wiz", MsgFile, 300, 200, "", "附件添加成功！", function(msg){});
   return;
 }
 

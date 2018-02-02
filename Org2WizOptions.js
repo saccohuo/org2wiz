@@ -62,7 +62,7 @@ objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", DialogFile, 500, 370, "", Pa
     if(omCopyDate !== NewCopyDate)
       objCommon.SetValueToIni(omOptionFileName, "Options", "CopyDate", NewCopyDate);
 
-    objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", MsgFile, 300, 200, "", null, function(msg){});
+    objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", MsgFile, 300, 200, "", "保存成功！", function(msg){});
   }
 });
 // alert('test');

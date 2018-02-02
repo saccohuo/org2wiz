@@ -6,6 +6,9 @@
      var objApp = WizExplorerApp;
      var objWindow = objApp.Window;
 
+     function getParams(){
+       return objWindow.GetHtmlDialogParam(WizChromeBrowser);
+     }
      function confirm(){
        objWindow.CloseHtmlDialog(WizChromeBrowser, null);
      }
@@ -43,5 +46,8 @@
     <div style="text-align: center">
       <button id="confirm" class="buttons" type="button" value="save" onclick="confirm()" autofocus="autofocus">确定</button>
     </div>
+    <script type="text/javascript">
+     document.getElementById("savemsg").textContent = getParams();
+    </script>
   </body>
 </html>
