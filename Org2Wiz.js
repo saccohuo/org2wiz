@@ -1,5 +1,4 @@
-﻿// import {read_info} from 'read-info';
-var objDB = objApp.Database;
+﻿var objDB = objApp.Database;
 // objApp.CurPluginAppPath
 var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
 // var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
@@ -14,6 +13,8 @@ var omOptionFileName = org_mode_pluginPath + CurOptionFile;
 // objWindow.ShowMessage(omOptionFileName.toString(), "omOptionFileName",0);
 
 var MathjaxUrl = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML";
+
+var hiddenCmd = org_mode_pluginPath + 'RunHidden.exe';
 
 Date.prototype.orgtime = function() {
   var year = this.getFullYear();
@@ -116,10 +117,8 @@ function OnOMButtonClicked(){
   var strCodingSetting = '(set-language-environment \\\"UTF-8\\\")';
   var strBackupSetting = '(setq make-backup-files nil)';
   
-  var strCmd = 'emacs.exe';
-  var strParam = '--batch -q --no-site-file --eval=\"' + strCodingSetting + '\" --eval=\"' + strBackupSetting + '\" --visit \"' + orgAttach + '\" --eval=\"' + strMJSetting + '\" --funcall org-html-export-to-html';
-  // objWindow.ShowMessage(strParam, "strParam",0);
-  
+  var strCmd = hiddenCmd;
+  var strParam = 'emacs --batch -q --no-site-file --eval=\"' + strCodingSetting + '\" --eval=\"' + strBackupSetting + '\" --visit \"' + orgAttach + '\" --eval=\"' + strMJSetting + '\" --funcall org-html-export-to-html';
 
   objCommon.RunExe(strCmd, strParam, true);
 
@@ -184,7 +183,7 @@ function OnOMButtonClicked(){
   if(omHtmlOption === 'yes'){
   }else if(omHtmlOption === 'no'){
     // 删除 emacs 导出的 html 文件
-    objCommon.RunExe("cmd", "/c del /f /q \"" + HtmlFile + "\"", true);
+    objCommon.RunExe(hiddenCmd, "cmd /c del /f /q \"" + HtmlFile + "\"", true);
   }else{
   }
 
@@ -205,32 +204,16 @@ function OnOMButtonClicked(){
     // data.source = orgAttach.replace(/\\/g, '/');
     data.source = orgAttach;
     data.tmpsource = data.source + '~';
-    // alert(data.tmpsource);
 
-    var checkCmd = 'python';
-    // alert('checkCmd'+checkCmd);
-    var checkParam = '\"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.py' + '\" ' + '\"' + data.source.replace(/\\/g, '/') + '\"' + ' \"' + data.tmpsource.replace(/\\/g, '/') + '\"';
-    // var checkParam = '\"' + data.source + '\" 2>\&1';
+    var checkCmd = hiddenCmd;
+    var checkParam = 'python \"' + org_mode_pluginPath.replace(/\\/g, '/') + 'addbom.py' + '\" ' + '\"' + data.source.replace(/\\/g, '/') + '\"' + ' \"' + data.tmpsource.replace(/\\/g, '/') + '\"';
+
     // 这里现在还是没办法获取到返回值，所以暂时只能对所有情况都把文件重新拷贝一份，其实不太合适
-    // alert('checkParam'+checkParam);
     var BOMmsg = objCommon.RunExe(checkCmd, checkParam, true);
-    // alert('BOMmsg= ' + BOMmsg);
     
     data.content = objCommon.LoadTextFromFile(data.tmpsource);
-    // var convCmd = 'unix2dos.exe';
-    // // var convCmd = '\"' + org_mode_pluginPath + 'unix2dos.exe' + '\"';
-    // alert(convCmd);
-    // var tmporg = data.source + '.tmporg';
-    // alert(tmporg);
-    // var convParam = '-m -n \"' + data.source + '\" \"' + tmporg + '\"';
-    // alert(convParam);
-    // var convmsg = objCommon.RunExe(convCmd, strParam, true);
-    // if(convmsg === 1){
-    //   alert('Org file BOM conversion failed.');
-    // }
-    // alert(convmsg);
 
-    objCommon.RunExe('cmd', '/c del /f /q \"' + data.tmpsource + '\"', true);
+    objCommon.RunExe(hiddenCmd, 'cmd /c del /f /q \"' + data.tmpsource + '\"', true);
     
     // Objcommon.SaveTextToFile(data.source+'.txt', data.content, 'unicode');
     // objCommon.SaveTextToFile(data.source+'.txt', data.content, 'gbk');
@@ -252,7 +235,7 @@ function OnOMButtonClicked(){
   otw_MarkAsMathjax();
 
   //-----------------------------------------------------------------------------------------------
-  // copy establish time of note into clipboard
+  // copy created time of note into clipboard
   //-----------------------------------------------------------------------------------------------
   if(omCopyDate === 'nop' || omCopyDate === 'created'){
   }else if(omCopyDate === 'copyall' || omCopyDate === 'updated'){
@@ -263,7 +246,6 @@ function OnOMButtonClicked(){
 
 //-------------- Add Org2Wiz button and function OnOMButtonClicked-----------------------
 function InitOMButton(){
-  // var languangeFileName = org_mode_pluginPath + "plugin.ini";
   objWindow.AddToolButton("document", "OMButton", "Org2Wiz", "", "OnOMButtonClicked");
 
   var omAttachmentsOption = otw_getAttachOption();
@@ -282,13 +264,8 @@ function OnOMAttachClicked(){
     return;
   }
   var attachPath = curDoc.AttachmentsFilePath;
-  // objWindow.ShowMessage("testbefore", "Debug",0);
-  // objWindow.ShowMessage(orgName, "Debug orgName",0);
-  // objWindow.ShowMessage(omAttachmentsOption.toString(), "Debug omAttachmentsoption",0);
 
   if(orgName !== ""){
-    // objWindow.ShowMessage("testafter", "Debug",0);
-    // objWindow.ShowMessage(orgName + ".tex", "Debug .tex",0);
     if((omAttachmentsOption === 'addtex') || (omAttachmentsOption == 'addtexpdf')){
       var texFile = curDoc.AddAttachment(orgName + ".tex");
     }
@@ -369,7 +346,7 @@ function GetOrg(curDoc){
 
   var OrgName = 0;
   var OrgFilename = 0;
-  // 此处还可以使用 _NewEnum 然后使用 for_each 结构
+
   for (var AttachNum = 0; AttachNum < AttachCount; AttachNum++ ) {
     OrgFilename =  curDoc.Attachments.Item(AttachNum).FileName;
     if(MFGetFileExtension(OrgFilename).toLowerCase() === '.org'){
@@ -377,7 +354,6 @@ function GetOrg(curDoc){
       break;
     }
   }
-  // objWindow.ShowMessage(OrgName, "Debug",0);
 
   if(MFGetFileExtension(OrgFilename).toLowerCase() === '.org'){
     return OrgName;
@@ -390,7 +366,7 @@ function GetOrg(curDoc){
 //---------------------Add .org Attachment for new .org Document----------------
 function AddOrgAttach(curDoc,templateFilename){
   var newomOrgAttach = objCommon.InputBox("org 文件名", "请输入需要添加的 org 附件的文件名（可包含或不包含 .org 后缀，但必须为 Windows 文件名允许的字符串）：", "default");
-  if(MFGetFileExtension(newomOrgAttach).toLowerCase() != '.org'){
+  if(MFGetFileExtension(newomOrgAttach).toLowerCase() !== '.org'){
     newomOrgAttach = newomOrgAttach + ".org";
   }
   else{
@@ -403,7 +379,7 @@ function AddOrgAttach(curDoc,templateFilename){
   var destinationFile;
 
   // 确认该 Document 没有包含 org 附件
-  if(newomOrgAttach != "" && newomOrgAttach != ".org"){
+  if(newomOrgAttach !== "" && newomOrgAttach !== ".org"){
     // 先添加一个附件到 Document，防止没有创建附件文件夹
     var localTemplateFileHdl = curDoc.AddAttachment(TemplateFile);
     attachPath = curDoc.AttachmentsFilePath;
@@ -428,23 +404,16 @@ function AddOrgAttach(curDoc,templateFilename){
 //-------------------Add Mathjax to Document-----------------------
 //-----------------------------------------------------------------
 function otw_MarkAsMathjax(){
-  // var objWindow = objApp.Window;
   var objDocument = objWindow.CurrentDocument;
-  // alert("test1");
   if (objDocument) {
     objDocument.Type = "Mathjax";
-    // alert("objDocument.Type");
-    // alert(objDocument.Type);
     objApp.AddGlobalScript(org_mode_pluginPath + "MathjaxCurrentDocument.js");
-    // objApp.AddGlobalScript(objApp.CurPluginAppPath + "MathjaxCurrentDocument.js");
-    // alert(objApp.CurPluginAppPath);
   }
 }
 
 function insertScript(mj_url){
   var elem = document.createElement("script");
   elem.src = mj_url;
-  // document.head.appendChild(elem);
   document.head.appendChild(elem);
 }
 
@@ -453,21 +422,11 @@ function insertBeforeScript(mj_url){
   elem.src = mj_url;
 
   var src_list = document.querySelectorAll("script");
-  // var src_list = document.getElementsByTagName("script");
   var div_list = document.querySelectorAll("div#MathJax_Message");
   for(var i=0;i<src_list.length;i++){
     var src_str = src_list[i].getAttribute("src");
-    // alert("src_str");
-    // alert(src_str);
     var str_match_cdn = (src_str!=null) ? src_str.match(/^index_files\/MathJax_\d+\.js$/) : null;
-    // alert("str_match_cdn");
-    // alert(str_match_cdn);
-    // if(str_match_cdn!=null || str_match_hub!=null){
     if(str_match_cdn!=null){
-      alert("src_str");
-      alert(src_str);
-      alert("str_match_cdn");
-      alert(str_match_cdn);
       document.head.insertBefore(elem,src_list[i]);
       return 1;
     }
@@ -476,114 +435,53 @@ function insertBeforeScript(mj_url){
 }
 
 function otw_removeScript(html_str,mj_url){
-  // alert("otw_removeScript");
   var div = document.createElement("div");
   if(typeof html_str == "string")
     div.innerHTML = html_str;
-  // return div.childNodes;
-  // alert(div.innerHTML);
   var src_list = div.querySelectorAll("script[src]");
-  // alert(div);
-  // alert(src_list);
-  // alert(src_list.length);
-  // alert(src_list[0]);
-  // var src_list = div.childNodes.querySelectorAll("script[src]");
   for(var i=0;i<src_list.length;i++){
-    // alert(src_list.length);
     var src_str = src_list[i].getAttribute("src");
-    // alert("src_str");
-    // alert(src_str);
     RegExp.escape= function(s) {
       return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     };
     var str_match_cdn = (src_str!=null) ? src_str.match(RegExp.escape(mj_url)) : null;
-    // if(str_match_cdn!=null || str_match_hub!=null){
-    // alert("str_match_cdn");
-    // alert(str_match_cdn);
     if(str_match_cdn!=null){
-      // alert("str_match_cdn");
-      // alert(str_match_cdn);
       var tmp = document.createElement("div");
       tmp.appendChild(src_list[i]);
-      // alert("tmp.innerHTML");
-      // alert(typeof tmp.innerHTML);
-      // alert(tmp.innerHTML);
-      // alert(html_str.match(RegExp.escape(tmp.innerHTML)));
       var html_re = new RegExp(RegExp.escape(tmp.innerHTML),"gi");
-      // var html_re = new RegExp(RegExp.escape(tmp.innerHTML),"g");
-      // alert(html_re);
       html_str = html_str.replace(html_re,"");
-      // html_str.replace(RegExp.escape(tmp.innerHTML),'');
-      // html_str.replace(tmp.innerHTML,"");
-      // alert("after replace");
-      // alert(html_str.match(RegExp.escape(tmp.innerHTML)));
       return html_str;
-      // document.head.replaceChild(new_elem,src_list[i]);
-      // document.head.removeChild(src_list[i]);
-      // src_list[i].src=new_elem.src;
-      // alert(src_list[i].getAttribute("src"));
-      // return 1;
     }
   }
-  // return null; //here null should be returned after debugging
-  return html_str;
+  return null;
 }
-// 还需要解决 html 带脚本update的情况，不带脚本的情况可以直接用 insertScript
-// 想要带脚本的情况，最好加个 Tools 来设置 UpdateDocument 时的 flag 参数
+
 function replaceScript(mj_url){
   var new_elem = document.createElement("script");
   new_elem.src = mj_url;
 
   var src_list = document.querySelectorAll("script");
-  // var src_list = document.getElementsByTagName("script");
   var div_list = document.querySelectorAll("div#MathJax_Message");
   for(var i=0;i<src_list.length;i++){
     var src_str = src_list[i].getAttribute("src");
     var text_str = src_list[i].textContent;
-    // alert("src_str");
-    // alert(src_str);
     var str_match_cdn = (src_str!=null) ? src_str.match(/^index_files\/MathJax_\d+\.js$/) : null;
     var str_match_hub = (text_str!=null) ? text_str.match(/MathJax\.Hub\.Config/) : null;
-    // alert(str_match_head);
-    // alert(str_match_body);
-    // alert("str_match");
-    // alert(str_match);
-    // if(str_match_cdn!=null || str_match_hub!=null){
     if(str_match_cdn!=null){
-      alert("src_str");
-      alert(src_str);
-      alert("str_match");
-      alert(str_match_cdn);
       // document.head.replaceChild(new_elem,src_list[i]);
       document.head.removeChild(src_list[i]);
-      // src_list[i].src=new_elem.src;
-      // alert(src_list[i].getAttribute("src"));
-      // return 1;
     }
   }
 
-  // if(div_list!=null)
-  //   document.body.removeChild(div_list[0]);
-
   document.body.appendChild(new_elem);
-  // return 1;
 }
 
 
 function otw_addMathjaxScript() {
   var doc = objApp.Window.CurrentDocumentBrowserObject;
-  // alert("docbroswer");
-  // alert(doc);
-
-  // alert("insertscript");
   doc.ExecuteScript(insertScript.toString(),function(){
     doc.ExecuteFunction1("insertScript", MathjaxUrl, null);
   });
-  // doc.ExecuteScript(insertBeforeScript.toString(),function(){
-  //   doc.ExecuteFunction0("insertBeforeScript", MathjaxUrl, null);
-  // });
-
-  // alert("afterscript");
 }
 
 function otw_addMathjaxScriptToCurrentDocument() {
@@ -605,9 +503,6 @@ function otw_onHtmlDocumentCompleted(doc) {
 
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
-//下面的函数我不知道是干嘛的，也不知道哪里来的
-
-//--------------------------------------------
 // 这个地方似乎没有考虑没有后缀名的文件
 function MFGetFileExtension(Fstr){
   pos = Fstr.lastIndexOf('.');
@@ -616,115 +511,6 @@ function MFGetFileExtension(Fstr){
   else
     return Fstr.substr(pos);
 }
-// function MFIsIE(){
-//   if(navigator.userAgent.indexOf("MSIE")>0)
-//     return true;
-//   else
-//     return false;
-// }
-// function MFins_elem(doc, part, elem_type, callbackfunc){
-//   var oPart = doc.getElementsByTagName(part).item(0); 
-//   var oElem = doc.createElement(elem_type); 
-//   callbackfunc(oElem);
-//   //oHead.appendChild(oElem); 
-//   oPart.insertBefore(oElem,null); //because IE bug, use insertBefore;
-//   return oElem;
-// }
-
-// function MFAppendScriptSrc(doc, part, script_type, str){
-
-//   MFins_elem(doc, part, "script", function(oScript) {
-//                                   oScript.type = script_type; 
-//                                   oScript.defer = true;
-//                                   oScript.src = ("file:///" +  str).replace(/\\/g,'/'); 
-//                                   }
-//   );
-// }
-
-// function MFAppendCssSrc(doc, str){
-//   MFins_elem(doc, 'HEAD', "link", function(oCss) {
-//                                   oCss.rel = "stylesheet"; 
-//                                   oCss.href = ("file:///" +  str).replace(/\\/g,'/'); 
-//                                   }
-//   );
-// }
-
-// function MFAppendInnerHtml_IE6(doc, part, innerHtmlStr){
-//   MFins_elem(doc, part, "div",  function(oDiv) {
-//                                 oDiv.id= "TmpIdForAppendScriptInnerHtml1";
-//                                 oDiv.innerHTML =  "<input type=\"hidden\" id=TmpIdForAppendScriptInnerHtml2>"+innerHtmlStr; 
-//                                 }
-//   );
-//   var oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml1');
-//   oElem.removeNode(false);
-//   oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml2');
-//   oElem.removeNode(true);
-// }
-
-// function MFAppendInnerHtml_IE6WithW3CAPI(doc, part, innerHtmlStr)
-// { //The implementation seems strange, because it need to compatible with IE6 and above and wibkit
-//   MFins_elem(doc, part, "div",  function(oDiv) {
-//                                 oDiv.id= "TmpIdForAppendScriptInnerHtml1";
-//                                 oDiv.innerHTML =  "<input type=\"hidden\" id=TmpIdForAppendScriptInnerHtml2>"+innerHtmlStr; 
-//                                 }
-//   );
-//   var oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml1');
-//   while(oElem.firstChild)  {
-//     oElem.parentNode.insertBefore(oElem.firstChild,oElem);  
-//   }
-//   oElem.parentNode.removeChild(oElem);//oElem.removeNode(false);
-//   oElem=doc.getElementById('TmpIdForAppendScriptInnerHtml2');
-//   oElem.parentNode.removeChild(oElem);//oElem.removeNode(true);
-// }
-
-// function MFAppendStyleInnerHtml(doc, str){
-//   try{
-//     MFins_elem(doc, 'HEAD', "style", function(oCss) {
-//                                     oCss.type = "text/css"; 
-//                                     oCss.innerHTML = str; 
-//                                     }
-//     );
-//   }catch(ex){
-//     MFAppendInnerHtml_IE6(doc, 'head', '<style type="text/css">'+str+'</style>');
-//   }
-// }
-
-// function MFAppendScriptInnerHtml(doc, part, script_type,innerHtmlStr)
-// { 
-//   try{
-//     MFins_elem(doc, part, "script", function(oCss) {
-//                                     oCss.type = script_type; 
-//                                     oCss.innerHTML = innerHtmlStr; 
-//                                     }
-//     );
-//   }catch(ex){
-//     MFAppendInnerHtml_IE6(doc, part, "<script defer=\"true\" type=\"" + script_type + "\">" + innerHtmlStr + "</scr" + "ipt>");
-//   }
-// }
-
-// //----------------------------------------------------------------------
-// function MFAppendMathJaxConfig(doc){
-//   var innerHtmlStr = "MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']]}}); \
-//                       MathJax.Hub.Config({tex2jax: {displayMath: [ ['$$','$$'], [\"\\\\[\",\"\\\\]\"], [\"\\\\begin{displaymath}\",\"\\\\end{displaymath}\"] ]}});\
-//                       MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: \"all\", useLabelIds: true} } });  \
-//                       MathJax.Hub.Config({ TeX: { extensions: [\"cancel.js\"] } });\
-//                      "; 
-//   MFAppendScriptInnerHtml(doc, 'BODY', "text/x-mathjax-config", innerHtmlStr);
-// }
-
-// function MFInitMathJax(doc){
-//   //http://docs.mathjax.org/en/v1.1-latest/configuration.html
-//   MFAppendMathJaxConfig(doc); // A simple MathJax configuration for test 
-  
-//   //the 1st method to load mathjax, can speed up the processing
-//   //AppendScriptSrc('HEAD', "text/javascript", "MathJax\\MathJax.js?config=Accessible&delayStartupUntil=configured");
-//   //AppendScriptInnerHtml('BODY', "text/javascript", "MathJax.Hub.Configured();");
-  
-//   //the 2nd method
-//   MFAppendScriptSrc(doc, 'BODY', "text/javascript", org_mode_pluginPath+"MathJax\\MathJax.js?config=Accessible");
-// }
-
-
 
 //-----------------------------------------------
 // read info from org file
