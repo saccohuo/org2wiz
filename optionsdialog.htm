@@ -36,13 +36,13 @@
      }
 
      function save(){
-       NewDefaultTag = string_trim(document.getElementById("otw_tags").value);
-       NewAttachmentsOption = getValue("otw_attach");
-       NewEncodingOption = getValue("otw_encode");
-       NewMJOption = getValue("otw_script");
-       NewTagOption = getValue("otw_tagopt");
-       NewHtmlOption = getValue("otw_html");
-       NewCopyDate = getValue("otw_date");
+       var NewDefaultTag = string_trim(document.getElementById("otw_tags").value);
+       var NewAttachmentsOption = getValue("otw_attach");
+       var NewEncodingOption = getValue("otw_encode");
+       var NewMJOption = getValue("otw_script");
+       var NewTagOption = getValue("otw_tagopt");
+       var NewHtmlOption = getValue("otw_html");
+       var NewCopyDate = getValue("otw_date");
 
        if(omDefaultTag !== NewDefaultTag)
          objCommon.SetValueToIni(omOptionFileName, "Options", "DefaultTag", NewDefaultTag);
@@ -59,9 +59,26 @@
        if(omCopyDate !== NewCopyDate)
          objCommon.SetValueToIni(omOptionFileName, "Options", "CopyDate", NewCopyDate);
 
+       // var WizChromeBroswer = objWindow.CurrentDocumentBrowserObject;
+       // var tmpWizChromeBrowser = WizChromeBrowser;
+       // var tmpBrowserId = tmpWizChromeBroswer.BroswerId;
+       // alert(tmpBrowserId);
+       // alert(tmpWizChromeBroswer.BroswerId);
+       try{
        objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", MsgFile, 300, 200, "", "保存成功！", function(msg){
-         objWindow.CloseHtmlDialog(WizChromeBrowser, null);
+		alert(msg);
+		 objWindow.ShowMessage(msg, "msg",0);
+         // alert(tmpWizChromeBrowser.BroswerId);
+         // var WizChromeBroswer = objWindow.CurrentDocumentBrowserObject;
+         objWindow.CloseHtmlDialog(WizChromeBroswer, null);
        });
+
+       // setTimeout(function(ret){
+       //   objWindow.CloseHtmlDialog(WizChromeBrowser, null);
+       // },7000);
+       }catch(err){
+         alert(err.message);
+       }
      }
      function getValue(eleid){
        var ele = document.getElementById(eleid);
@@ -82,6 +99,13 @@
        if((e.keyCode === 13) && ((document.activeElement.name === "DefaultTag") || (document.activeElement.tagName === "BODY"))){
          save();
        }
+     });
+
+     $(document).ready(function() {
+       $("#saveform").click(function(){
+         // alert('test2');
+         save();
+       });
      });
     </script>
     <style type="text/css">
@@ -140,7 +164,8 @@
         </select>
       </p>
       <div style="text-align: center">
-        <button id="saveform" class="buttons" type="submit" value="save" onclick="save()" accesskey="S">保存(S)</button>
+        <!-- <button id="saveform" class="buttons" type="submit" value="save" onclick="save()" accesskey="S">保存(S)</button> -->
+        <button id="saveform" class="buttons" type="submit" value="save" accesskey="S">保存(S)</button>
         &nbsp;
         <button id="cancellform" class="buttons" type="submit" value="cancell" onclick="cancell()" accesskey="Z">取消(Z)</button>
         &nbsp;

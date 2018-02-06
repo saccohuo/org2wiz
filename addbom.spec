@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['addbom.py'],
-             pathex=['D:\\MyDocuments\\My Knowledge\\Plugins\\Org2Wiz'],
+             pathex=['./'],
              binaries=[],
              datas=[],
              hiddenimports=[],
