@@ -5,7 +5,7 @@
     <script type="text/javascript">
      var objApp = window.external;
      var objWindow = objApp.Window;
-     // var WizChromeBroswer = objWindow.CurrentDocumentBrowserObject;
+     // var WizChromeBrowser = objWindow.CurrentDocumentBrowserObject;
      var objDocument = objWindow.CurrentDocument;
      var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
      var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
@@ -59,26 +59,11 @@
        if(omCopyDate !== NewCopyDate)
          objCommon.SetValueToIni(omOptionFileName, "Options", "CopyDate", NewCopyDate);
 
-       // var WizChromeBroswer = objWindow.CurrentDocumentBrowserObject;
-       // var tmpWizChromeBrowser = WizChromeBrowser;
-       // var tmpBrowserId = tmpWizChromeBroswer.BroswerId;
-       // alert(tmpBrowserId);
-       // alert(tmpWizChromeBroswer.BroswerId);
-       try{
        objWindow.ShowHtmlDialogEx(false, "Org2Wiz 选项", MsgFile, 300, 200, "", "保存成功！", function(msg){
-		alert(msg);
-		 objWindow.ShowMessage(msg, "msg",0);
-         // alert(tmpWizChromeBrowser.BroswerId);
-         // var WizChromeBroswer = objWindow.CurrentDocumentBrowserObject;
-         objWindow.CloseHtmlDialog(WizChromeBroswer, null);
+         setTimeout(function(ret){
+           objWindow.CloseHtmlDialog(WizChromeBrowser, null);
+         },100);
        });
-
-       // setTimeout(function(ret){
-       //   objWindow.CloseHtmlDialog(WizChromeBrowser, null);
-       // },7000);
-       }catch(err){
-         alert(err.message);
-       }
      }
      function getValue(eleid){
        var ele = document.getElementById(eleid);
@@ -101,12 +86,11 @@
        }
      });
 
-     $(document).ready(function() {
-       $("#saveform").click(function(){
-         // alert('test2');
-         save();
-       });
-     });
+     /* $(document).ready(function() {
+      *   $("#saveform").click(function(){
+      *     save();
+      *   });
+      * });*/
     </script>
     <style type="text/css">
      .buttons{
@@ -165,11 +149,14 @@
       </p>
       <div style="text-align: center">
         <!-- <button id="saveform" class="buttons" type="submit" value="save" onclick="save()" accesskey="S">保存(S)</button> -->
-        <button id="saveform" class="buttons" type="submit" value="save" accesskey="S">保存(S)</button>
+        <input type="button" id="saveform" class="buttons" value="保存(S)" onclick="save()" accesskey="S" />
+        <!-- <button id="saveform" class="buttons" type="submit" value="save" accesskey="S">保存(S)</button> -->
         &nbsp;
-        <button id="cancellform" class="buttons" type="submit" value="cancell" onclick="cancell()" accesskey="Z">取消(Z)</button>
+        <!-- <button id="cancellform" class="buttons" type="submit" value="cancell" onclick="cancell()" accesskey="Z">取消(Z)</button> -->
+        <input type="button" id="cancellform" class="buttons" value="取消(Z)" onclick="cancell()" accesskey="Z" />
         &nbsp;
-        <button id="resetform" class="buttons" type="reset" value="reset" accesskey="R">重置(R)</button>
+        <!-- <button id="resetform" class="buttons" type="reset" value="reset" accesskey="R">重置(R)</button> -->
+        <input type="reset" id="resetform" class="buttons" value="重置(R)" accesskey="R" />
       </div>
     </form>
     <script type="text/javascript">

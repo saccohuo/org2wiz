@@ -10,13 +10,13 @@
        return objWindow.GetHtmlDialogParam(WizChromeBrowser);
      }
      function confirm(){
-       objWindow.CloseHtmlDialog(WizChromeBrowser, 'test');
+       objWindow.CloseHtmlDialog(WizChromeBrowser, null);
      }
 
      function load(){
-       // setTimeout(function(ret){
-       //   objWindow.CloseHtmlDialog(WizChromeBrowser, 'test');
-       // },500);
+       setTimeout(function(ret){
+         objWindow.CloseHtmlDialog(WizChromeBrowser, null);
+       },400);
      }
     </script>
     <style type="text/css">
