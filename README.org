@@ -109,9 +109,6 @@ CLOSED: [2018-02-02 Fri 01:17]
 - 一键把与 org 同名的 tex 文件或/与 pdf 文件作为附件到文档。可选。
 - 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件，需提前设置好编码方式：UTF8(默认)，UTF8-BOM，GBK，Unicode。
 - 使用 Org2Wiz 创建笔记时，把笔记创建时间复制到剪贴板；使用 Org2Wiz 更新笔记时，把笔记更新时间复制到剪贴板。可选。
-* FAQ
-** Bug：“工具”中的设置必须在3秒之内操作完成
-这是个 bug，正在跟为知官方人员沟通解决。
 * 参考
 - [[http://www.wiz.cn/manual/plugin/][为知笔记 Windows 插件开发文档]]
 - [[https://www.wiz.cn/category/tech/dev][为知笔记 4.5 Windows 开发文档]]
