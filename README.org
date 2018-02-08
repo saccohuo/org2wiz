@@ -1,117 +1,36 @@
-#+TITLE: org2wiz
+#+TITLE: Org2Wiz
 #+OPTIONS: ^:{}
 
 * 插件介绍
-为知笔记的一款插件，将 org-mode 文件作为附件加入笔记中，笔记内容替换为 org-mode 文件的 html 格式。
-* 插件安装
-下面两种方法都可以。
-1. 在 [[https://github.com/saccohuo/org2wiz/releases][Releases]] 中下载对应版本，安装。
-2. 打包下载 repo 的 zip 压缩包，然后将 ~.zip~ 后缀改为 ~.wizplugin~ ，双击安装即可。
-* 插件使用
-org 文档标题必须以 ~.org~ 结尾。插入附件，后缀为 ~.org~ ，然后在为知笔记界面点击 ~org2wiz~ 。
+为知笔记的一款插件，将 org-mode 文件作为附件加入笔记中，笔记内容替换为 org-mode 文件导出的 html 格式。
 
-感谢原作者 [[http://bbs.wiz.cn/space-uid-5130.html][@myflocky]]。
-* 原插件问题
-安装原版 ~Org-Mode插件~ 之后，按照应用描述进行操作会没有一点效果，操作之后还是一片空白。好心人 [[http://bbs.wiz.cn/space-uid-26363.html][@yangguang760]] 在 [[http://bbs.wiz.cn/forum.php?mod=redirect&goto=findpost&ptid=17135&pid=109573][帖子回复]] 中指出在这里需要对 ~Org-Mode插件~ 文件夹（ ~D:\MyDocuments\My Knowledge\Plugins\{a1f84253-8cba-4753-82c9-6654642c3c8c}~ ）下的 ~Org-Mode.js~ 文件作修改，修改方法见以上引用信息。其中 ~D:\MyDocuments~ 为我在本机安装数据文件夹的路径，请自行替换为自己电脑上为知笔记的数据文件夹路径。
-
-#+BEGIN_QUOTE
-新版org-mode的内置函数改了，所以插件的第30行应改为
-#+BEGIN_SRC
-strParam = " --batch -q --no-site-file --visit \""+OrgFile+"\" --funcall org-html-export-to-html";
-#+END_SRC
-本人已验证。
-#+END_QUOTE
-
-感谢好心人 [[http://bbs.wiz.cn/space-uid-26363.html][@yangguang760]] 给出了解决方案。
-* 想法
-下面是我根据我的部分需求和想法想让该插件实现的功能。只可惜我对这些没有经验，但会试着学习来实现这些功能，更希望能有感兴趣的道友一起实现这些功能。
-** DONE 从 org 导出的 html 也支持 MathJax(本地/远程)
-CLOSED: [2018-01-27 Sat 02:30]
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2018-01-27 Sat 02:30]
-:END:
-类似该插件支持的 markdown 导出之后仍然支持调用 MathJax 的功能。插件介绍说本身已经支持本地 MathJax 解析功能，但是我按照介绍的方法生成的 html 没有被渲染。可以选择调用本地的 MathJax 还是远程的 MathJax。
-
-不再考虑使用本地的 Mathjax，现改为两个选项：org 导出 html时使用/不使用在线 Mathjax。如果使用在线Mathjax，可以方便后续直接查看导出的 html文件。
-
-笔记中无论何时都要加载在线 Mathjax（如果文中有LaTeX公式的话）。
-** TODO 自动识别附件中需要导出的那个 org 文件 （完成 50%）
-附件中有时候不会只放置所需的 org 文件，有时候会加入一些其他附件，这个时候附件的自动排序会导致插件的导入 org 功能失效。此时必须手动修改 org 文件名，很不方便，也不智能。
-
-我的想法是：如果附件中只有一个 org 文件，就让该插件自动识别已添加的附件，并找出所需的 org 文件，然后进行 Org2Wiz 操作；如果有多个 org 文件会让使用者选择需要导出的 org 文件，否则就导出默认的那个文件（该功能还需要进行更周全的考虑）。
-** CANCELLED Org2Wiz 支持利用为知的导入 pdf 功能实现把 org 通过 tex 导出的 pdf 文件导入当前笔记中
-CLOSED: [2016-07-16 Sat 03:04]
-:LOGBOOK:
-- State "CANCELLED"  from "TODO"       [2016-07-16 Sat 03:04] \\
-  为知不提供导入文件相关 API。
-:END:
-功能构思：org 常用的导出格式为 html 和 pdf(经过 LaTeX)，而 pdf 格式对公式的支持比 MathJax 好。因此想要实现可以选择导出 html 还是导出 pdf 到该笔记中。为知支持 pdf 导入，但是好像知道只可以导入到新笔记中，需要更仔细的调研。
-
-这个功能还涉及到 org 中针对 html 和 pdf 导出的相关设置，暂时不重点考虑，假设导出时这部分设置已经完善。
-
-由于为知未开放导入文件相关的 API，所以暂时这个想法不能实现了。
-** DONE 自动把当前文件夹同名的 pdf 和 tex 文件加入到附件中（设置 AttachmentsOption=1）
-CLOSED: [2016-07-17 Sun 17:44]
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2016-07-17 Sun 17:44]
-:END:
-如果选择把 pdf 文件导入到该笔记中，最好自动把 tex 和 pdf 文件加入到附件中，防止在其他平台没有同步这些文件。
-** DONE 对于后缀名为 .org 且附件中没有 .org 后缀名的文件的笔记，点击 org2wiz 按钮可以弹出对话框设置文件名，然后自动添加一个空白的 .org 文件
-CLOSED: [2018-01-27 Sat 14:30]
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2018-01-27 Sat 14:30]
-:END:
-- 这里其实复用了 org2wiz 按钮的功能：如果附件中无 org 文件，自动添加 org 文件（用户设定文件名）；如果附件中有 org 文件，把 org 文件导入到笔记中
-- 判断笔记后缀名是否为 .org
-- 判断附件中是否有 .org 文件
-- 点击 org2wiz 按钮，弹出对话框，让用户输入文件名（判断是否需要自动添加 .org 后缀）
-- 判断用户输入的文件名是否为空，或者是否点了“取消”（其实这个时候提交的文件名也是空）
-- 根据用户设定的文件名新建 .org 文件，并添加到笔记的附件中
-** DONE 调用 emacs 不显示命令行窗口
-CLOSED: [2018-02-02 Fri 19:30]
-:LOGBOOK:
-- State "DONE"       from              [2018-02-02 Fri 19:30]
-:END:
-可以参考 [[https://github.com/CodeFalling/hexo-renderer-org][hexo-renderer-org]]。
-
-使用 RunHidden 实现，Python 脚本的使用 pyinstaller 的字段设置实现。
-** org2wiz 可以在调用 emacs 时设置传递或者添加某些字串
-借鉴 hexo-renderer-org 中的 common 字段。也可以同时解决导出 html 时没调用 emacs 配置文件导致的一些问题，比如 emacs 中自己配置的三种标点符号的转义：
-#+BEGIN_SRC emacs-lisp
-(after-load 'org
-    ;; 只对某个标点禁止转义，只需要把下面这一行双引号中最后面的 \"', 这三个符号（其中双引号在配置中需要转义）中除了要禁止转义符号的其他符号加入到下面的下面那一行中
-    ;; (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n,\"'")
-    (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n")
-    (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
-  )
-#+END_SRC
-** DONE 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件
-CLOSED: [2016-09-18 Sun 19:02]
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2016-09-18 Sun 19:02]
-:END:
-** DONE 自动把 org 文件中的 tag 添加到为知笔记中
-CLOSED: [2018-02-02 Fri 01:17]
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2018-02-02 Fri 01:17]
-:END:
-找到 tagcollection 对象，从 Document 删除所有 tag，然后从 org 中读取所有 tag（这一步不知道怎么实现，要参考 [[https://github.com/CodeFalling/hexo-renderer-org][hexo-renderer-org]]），加入到为知中。
-** TODO 帮助文件
-在 Github 添加帮助页面，在 WizNote 中添加帮助文件。
-* 插件已更新功能
-- 去除 markdown 相关功能以及 mdExport 按钮。
-- MathJax 渲染。
+感谢原作者 [[http://bbs.wiz.cn/space-uid-5130.html][@myflocky]] 和为知笔记开发人员。
+* 插件功能
+- 将笔记附件中“.org”文件对应的 html 格式作为笔记内容。
+- 对于后缀为“.org”但没有“.org”附件的笔记，添加空的 .org 附件，可自行设置编码方式：UTF8(默认)，UTF8-BOM，GBK，Unicode。
+- MathJax 渲染“.org”后缀笔记。
 - 自动找到附件中的 org 文件，不需要一定在附件的第一位。
-- org 生成 html 更新到笔记中之后，保留/删除生成的 html 文件。可选。
-- 保留/删除 emacs 导出的 html 中的 script 标签。可选。
 - 进行 Org2Wiz 转换时，自动添加默认标签到文档，支持多标签。可选。
 - 进行 Org2Wiz 转换时，把 org 文件中的 Tag 自动添加到笔记中（覆盖）。可选。
 - 一键把与 org 同名的 tex 文件或/与 pdf 文件作为附件到文档。可选。
-- 对于后缀是 .org 且没有 .org 附件的 Document 自动添加空的 .org 附件，需提前设置好编码方式：UTF8(默认)，UTF8-BOM，GBK，Unicode。
 - 使用 Org2Wiz 创建笔记时，把笔记创建时间复制到剪贴板；使用 Org2Wiz 更新笔记时，把笔记更新时间复制到剪贴板。可选。
+* 插件安装
+下面两种方法都可以。
+1. 在 [[https://github.com/saccohuo/org2wiz/releases][Releases]] 中下载对应版本的 ~Org2Wiz.wizplugin~ ，安装。
+2. 打包下载 repo 的 zip 压缩包，然后将 ~.zip~ 后缀改为 ~.wizplugin~ ，双击安装即可。
+* 插件使用
+1. 笔记工具栏添加“Org2Wiz”按钮。对于后缀为“.org”的笔记，点击该按钮，若笔记不包含“.org”附件，则弹出对话框提示用户输入需要添加的“.org”文件名；若笔记中包含“.org”附件，则插件会对排序最靠前的“.org”文件进行操作，将笔记内容更新为对应的html格式。
+2. 使用默认设置可以正常运行插件，若有额外需要，可以点击“菜单”->“工具”->“Org2Wiz选项”来对插件进行设置。
+3. 在设置选项中，“Org2Wiz 默认标签”用于设置点击“Org2Wiz”按钮时，需要为笔记额外添加的标签，当“Org2Wiz 标签选项”设置为“添加默认标签”时，此项才会生效。
+4. 在设置选项中，“Org2Wiz 标签选项”用于设置点击“Org2Wiz”按钮时，是否为笔记添加默认标签，是否使用“.org”附件中的“#+TAGS”替换笔记的标签。
+5. 在设置选项中，“Org2Wiz 附件选项”用于设置是否显示“AddAttach”按钮，以及点击“AddAttach”按钮时的操作。当在“不添加AddAttach”与其他选项之间切换时，需重启为知笔记才可以生效。
+6. 在设置选项中，“Org2Wiz 文件编码”用于设置在对后缀为“.org”且不包含“.org”附件的笔记自动添加“.org”附件时，该附件的编码方式。
+7. 在设置选项中，“Org2Wiz 脚本选项”用于设置在更新笔记时，是否保留“.org”文件导出的html文件内置的脚本。
+8. 在设置选项中，“Org2Wiz Html文件”用于设置在更新笔记后，是否保留导出的html文件。
+9. 在设置选项中，“Org2Wiz 复制时间”用于设置在更新笔记时，是否笔记的创建时间或者更新时间复制到剪贴板。
 * 参考
 - [[http://www.wiz.cn/manual/plugin/][为知笔记 Windows 插件开发文档]]
-- [[https://www.wiz.cn/category/tech/dev][为知笔记 4.5 Windows 开发文档]]
+- [[https://www.wiz.cn/category/tech/dev][为知笔记 4.5 Windows 插件开发文档]]
 - [[http://app.wiz.cn/index.html?id=181][org-mode插件 - 为知笔记应用中心]]
 - [[http://bbs.wiz.cn/thread-17135-1-3.html][Emacs Org-Mode 插件 - 为知笔记 (Wiz)Windows 客户端帮助区 - 为知笔记 (WizNote) 帮助中心 - Powered by Discuz!]]
 - [[http://bbs.wiz.cn/forum.php?mod=redirect&goto=findpost&ptid=17135&pid=109573][解决方案－为知笔记论坛]]
