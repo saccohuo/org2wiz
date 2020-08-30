@@ -1,4 +1,6 @@
-﻿var objDB = objApp.Database;
+﻿//要支持WSL的emacs，需要把文件路径位置加上mnt，再修改下文件的转义
+
+var objDB = objApp.Database;
 // objApp.CurPluginAppPath
 var org_mode_pluginPath = objApp.GetPluginPathByScriptFileName("Org2Wiz.js");
 // var objCommon = objApp.CreateActiveXObject("WizKMControls.WizCommonUI");
@@ -87,34 +89,46 @@ function OnOMButtonClicked(){
   // 作为新手写这些真的好累。 What The Fuck String and Escape
   // strMJpath = "(setq org-html-mathjax-options '((path \"https://cdn.mathjax.org/mathjax/latest/MathJax.js\?config=TeX-AMS-MML_HTMLorMML\")(scale \"100\")(align \"center\")(indent \"2em\")(mathml nil)))(setq org-html-mathjax-template \"^<script type=\\\"text/javascript\\\" src=\\\"%PATH\\\"^>^</script^>\")";
   // var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
-  RegExp.emacsescape= function(s) {
-    return s.replace(/\?/g, '\\\\$&');
+  RegExp.emacsUrlEscape= function(s) {
+    return s.replace(/\?/g, '\\$&');
   };
-  var MathjaxUrlEmacs = RegExp.emacsescape(MathjaxUrl);
+  var MathjaxUrlEmacs = RegExp.emacsUrlEscape(MathjaxUrl);
   // MathjaxUrlEmacs = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js\\?config=TeX-MML-AM_CHTML";
   var strOnlinePath = "(setq org-html-mathjax-options '((path \\\"" + MathjaxUrlEmacs + "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
   // "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js\\?config=TeX-MML-AM_CHTML"
   var strOfflinePath = "(setq org-html-mathjax-options '((path \\\"" + offlineMJpath +  "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))";
-  var strMJTpl = "(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
+  // var strMJTpl = "(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
+  var strMJtpl_head = "(setq org-html-mathjax-template \\\"";
+  var strMJtpl_tail = "\\\")";
+  var strMJtpl_content = "\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\^\<script type=\\\\\\\"text/x-mathjax-config\\\\\\\"\^\>MathJax.Hub.Config({  extensions: [\\\\\\\"tex2jax.js\\\\\\\", \\\\\\\"[Contrib]/siunitx/siunitx.js\\\\\\\", \\\\\\\"[Contrib]/physics/physics.js\\\\\\\", \\\\\\\"[Contrib]/sqrtspacing.js\\\\\\\"],  TeX: {    equationNumbers: { autoNumber: \\\\\\\"AMS\\\\\\\" },    extensions: [\\\\\\\"autoload-all.js\\\\\\\", \\\\\\\"AMSmath.js\\\\\\\", \\\\\\\"AMSsymbols.js\\\\\\\", \\\\\\\"color.js\\\\\\\", \\\\\\\"sinuitx.js\\\\\\\", \\\\\\\"physics.js\\\\\\\", \\\\\\\"cancel.js\\\\\\\", \\\\\\\"begingroup.js\\\\\\\", \\\\\\\"sqrtspacing.js\\\\\\\"]}});\^\</script\^\>";
+  var strSetMJTpl = strMJtpl_head + strMJtpl_content + strMJtpl_tail;
   var strNoMJTpl = "(setq org-html-mathjax-template \\\"\\\")";
 
   // 不知道为什么这三个 emacs 参数的路径和模板顺序设置还不太一样，没有 mathjax 的模板要放在路径设置前面，其他的反之
-  var strOnlineMJ = strOnlinePath + strMJTpl;
-  var strOfflineMJ = strOfflinePath + strMJTpl;
-  var strNoMJ = strNoMJTpl + strOnlinePath;
-  var strMJSetting = strNoMJ;
+  var strOnlineMJ = strSetMJTpl;
+  var strOfflineMJ = strSetMJTpl;
+  var strNoMJ = strNoMJTpl;
   // strOnlineMJ = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
   // strNoMJ = "(setq org-html-mathjax-options '((path \\\"https://cdn.mathjax.org/mathjax/latest/MathJax.js\\?config=TeX-AMS-MML_HTMLorMML\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\\\")";
   // strOfflineMJ = "(setq org-html-mathjax-options '((path \\\"" + offlineMJpath +  "\\\")(scale \\\"100\\\")(align \\\"center\\\")(indent \\\"2em\\\")(mathml nil)))(setq org-html-mathjax-template \\\"\^\<script type=\\\\\\\"text/javascript\\\\\\\" src=\\\\\\\"%PATH\\\\\\\"\^\>\^\</script\^\>\\\")";
 
-  strMJSetting = strOnlineMJ;
+  var strMJoption = strOnlinePath;
+  var strMJTpl = strOnlineMJ;
 
   // var strCodingSetting = '(set-language-environment \\\"UTF-8\\\") (setq-default make-backup-files nil)';
   var strCodingSetting = '(set-language-environment \\\"UTF-8\\\")';
   var strBackupSetting = '(setq make-backup-files nil)';
 
-  var strCmd = hiddenCmd;
-  var strParam = 'emacs --batch -q --no-site-file --eval=\"' + strCodingSetting + '\" --eval=\"' + strBackupSetting + '\" --visit \"' + orgAttach + '\" --eval=\"' + strMJSetting + '\" --funcall org-html-export-to-html';
+  // var strCmd = hiddenCmd;
+  // var strParam = 'wsl emacs --batch -q --no-site-file --eval=\"' + strCodingSetting + '\" --eval=\"' + strBackupSetting + '\" --visit \"' + orgAttach + '\" --eval=\"' + strMJoption + '\" --eval=\"' + strMJTpl + '\" --funcall org-html-export-to-html';
+  var orgAttach_wsl = "/mnt/" + orgAttach.charAt(0).toLowerCase() + "/" + orgAttach.substring(3);
+  orgAttach_wsl = orgAttach_wsl.replace(/\\/g,"/");
+  var strCmd = org_mode_pluginPath + "wsl.exe";
+  var strParam = 'emacs --batch -q --no-site-file --eval=\"' + strCodingSetting + '\" --eval=\"' + strBackupSetting + '\" --visit \"' + orgAttach_wsl + '\" --eval=\"' + strMJoption + '\" --eval=\"' + strMJTpl + '\" --funcall org-html-export-to-html';
+  // var strParam = 'emacs --batch -q --no-site-file --visit \"' + orgAttach_wsl + '\" --funcall org-html-export-to-html';
+
+  // objWindow.ShowMessage(strCmd, "Error-org-attach-filename",0);
+  // objWindow.ShowMessage(strParam, "Error-org-attach-filename",0);
 
   objCommon.RunExe(strCmd, strParam, true);
 
