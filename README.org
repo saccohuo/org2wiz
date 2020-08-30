@@ -3,6 +3,7 @@
 
 * 插件介绍
 为知笔记的一款插件，将 org-mode 文件作为附件加入笔记中，笔记内容替换为 org-mode 文件导出的 html 格式。
+20200830版本修改为仅支持wsl版emacs。
 
 感谢原作者 [[http://bbs.wiz.cn/space-uid-5130.html][@myflocky]] 和为知笔记开发人员。
 * 插件功能
