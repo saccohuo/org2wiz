@@ -3,7 +3,8 @@
 
 * 插件介绍
 为知笔记的一款插件，将 org-mode 文件作为附件加入笔记中，笔记内容替换为 org-mode 文件导出的 html 格式。
-20200830版本修改为仅支持wsl版emacs。
+
+*20200830版本修改为仅支持wsl版emacs。*
 
 感谢原作者 [[http://bbs.wiz.cn/space-uid-5130.html][@myflocky]] 和为知笔记开发人员。
 * 插件功能
@@ -29,6 +30,13 @@
 7. 在设置选项中，“Org2Wiz 脚本选项”用于设置在更新笔记时，是否保留“.org”文件导出的html文件内置的脚本。
 8. 在设置选项中，“Org2Wiz Html文件”用于设置在更新笔记后，是否保留导出的html文件。
 9. 在设置选项中，“Org2Wiz 复制时间”用于设置在更新笔记时，是否笔记的创建时间或者更新时间复制到剪贴板。
+* 常见问题
+** 无法正常生成html，提示“Cannot find html file exported by emacs”
+1. 可能是 wsl 无法正常工作，在命令行执行“wsl”，确认是否有“参考的对象类型不支持尝试的操作”的报错，如果有的话，在命令行执行“ ~netsh winsock reset~ ”。
+    - 参考:[[https://github.com/microsoft/WSL/issues/4194#issuecomment-503600687][参考的对象类型不支持尝试的操作。 · Issue #4194 · microsoft/WSL]]
+2. 可能是 wsl 对应的发行版没有调整成默认的，用 wslconfig 修改下 wsl 默认的发行版：“ ~wslconfig /setdefault <DistributionName>~ ”。
+   - 参考：[[https://www.sysgeek.cn/windows-10-set-default-linux-distribution/][如何在Windows 10的WSL中设置默认Linux发行版 - 系统极客]]
+
 * 参考
 - [[http://www.wiz.cn/manual/plugin/][为知笔记 Windows 插件开发文档]]
 - [[https://www.wiz.cn/category/tech/dev][为知笔记 4.5 Windows 插件开发文档]]
