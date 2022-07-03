@@ -124,7 +124,10 @@ function OnOMButtonClicked(){
   var orgAttach_wsl = "/mnt/" + orgAttach.charAt(0).toLowerCase() + "/" + orgAttach.substring(3);
   orgAttach_wsl = orgAttach_wsl.replace(/\\/g,"/");
   // var strCmd = org_mode_pluginPath + "wsl.exe";
-  var strCmd = "wsl.exe";
+  // var strCmd = "wsl.exe";
+  // var strCmd = "cmd.exe";
+  var strCmd = "C:\\Windows\\sysnative\\wsl.exe";
+  // var strParam = '';
   var strParam = 'emacs --batch -q --no-site-file --eval=\"' + strCodingSetting + '\" --eval=\"' + strBackupSetting + '\" --visit \"' + orgAttach_wsl + '\" --eval=\"' + strMJoption + '\" --eval=\"' + strMJTpl + '\" --funcall org-html-export-to-html';
   // var strParam = 'emacs --batch -q --no-site-file --visit \"' + orgAttach_wsl + '\" --funcall org-html-export-to-html';
 
